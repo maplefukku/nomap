@@ -28,7 +28,7 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
       initial="initial"
       animate="animate"
       transition={{ duration: 0.4, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-md"
+      className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
     >
       <h2 className="text-xl font-bold tracking-tight text-foreground">
         あなたのNoMap
