@@ -12,7 +12,7 @@ vi.mock("framer-motion", () => ({
   motion: {
     button: ({
       children,
-      whileTap,
+      whileTap: _whileTap,
       ...props
     }: React.ButtonHTMLAttributes<HTMLButtonElement> & { whileTap?: unknown }) => (
       <button {...props}>{children}</button>
