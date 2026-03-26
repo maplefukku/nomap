@@ -6,15 +6,8 @@ vi.mock("framer-motion", () => ({
   motion: {
     div: ({
       children,
-      initial,
-      animate,
-      transition,
       ...props
-    }: React.HTMLAttributes<HTMLDivElement> & {
-      initial?: unknown;
-      animate?: unknown;
-      transition?: unknown;
-    }) => <div {...props}>{children}</div>,
+    }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
   },
 }));
 
