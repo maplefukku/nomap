@@ -6,12 +6,14 @@ import { Share2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { RejectionInput } from "@/components/rejection-input";
 import { ResultCard, type ResultData } from "@/components/result-card";
+import { ActionCard } from "@/components/action-card";
+import { ESCopyCard } from "@/components/es-copy-card";
 import { EmptyState } from "@/components/empty-state";
 
-type Phase = "input" | "loading" | "result";
+type Phase = "lp" | "input" | "loading" | "result";
 
 export default function Home() {
-  const [phase, setPhase] = useState<Phase>("input");
+  const [phase, setPhase] = useState<Phase>("lp");
   const [results, setResults] = useState<ResultData[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +53,58 @@ export default function Home() {
       <Header />
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-10">
         <AnimatePresence mode="wait">
+          {phase === "lp" && (
+            <motion.section
+              key="lp"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex min-h-[70dvh] flex-col items-center justify-center px-4 text-center"
+            >
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+                「やりたくない」から
+                <br />
+                自分の地図を作る
+              </h1>
+              <p className="mt-4 max-w-sm text-lg text-muted-foreground">
+                絶対に嫌なことを入れると、AIが避けるべき方向と今日できる最初の1アクションを返します
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setPhase("input")}
+                className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90"
+              >
+                無料で始める
+              </motion.button>
+
+              <div className="mt-12 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm">
+                  <span className="text-2xl">🎯</span>
+                  <h3 className="mt-2 font-semibold">5分で完了</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    就活で話せる「軸」ができる
+                  </p>
+                </div>
+                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm">
+                  <span className="text-2xl">💡</span>
+                  <h3 className="mt-2 font-semibold">ESに使える</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    「嫌なこと」が「軸」に変わる
+                  </p>
+                </div>
+                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm">
+                  <span className="text-2xl">📱</span>
+                  <h3 className="mt-2 font-semibold">シェア可能</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    「私のNoMap」を画像で共有
+                  </p>
+                </div>
+              </div>
+            </motion.section>
+          )}
+
           {phase === "result" ? (
             <motion.div
               key="results"
@@ -100,39 +154,48 @@ export default function Home() {
                   </motion.button>
                 </div>
               </div>
+
               <div className="flex flex-col gap-4">
                 {results.map((result, i) => (
-                  <ResultCard key={i} result={result} index={i} />
+                  <div key={i} className="flex flex-col gap-4">
+                    <ResultCard result={result} index={i} />
+                    <ActionCard action={result.firstAction} />
+                    {result.esPhrase && (
+                      <ESCopyCard phrase={result.esPhrase} />
+                    )}
+                  </div>
                 ))}
               </div>
             </motion.div>
           ) : (
-            <motion.div
-              key="input"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex flex-col gap-8"
-            >
-              <RejectionInput
-                onSubmit={handleSubmit}
-                isLoading={phase === "loading"}
-              />
+            phase !== "lp" && (
+              <motion.div
+                key="input"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col gap-8"
+              >
+                <RejectionInput
+                  onSubmit={handleSubmit}
+                  isLoading={phase === "loading"}
+                />
 
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-                  role="alert"
-                >
-                  {error}
-                </motion.div>
-              )}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+                    role="alert"
+                  >
+                    {error}
+                  </motion.div>
+                )}
 
-              {results.length === 0 && phase === "input" && <EmptyState />}
-            </motion.div>
+                {results.length === 0 && phase === "input" && <EmptyState />}
+              </motion.div>
+            )
           )}
         </AnimatePresence>
       </main>

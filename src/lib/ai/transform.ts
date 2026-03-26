@@ -24,8 +24,9 @@ const SYSTEM_PROMPT = `あなたはキャリア・ライフコーチです。ユ
   {
     "avoidPattern": "回避しているパターンの本質的な説明",
     "direction": "その拒否が示す、進むべき方向性",
+    "values": "拒否から読み取れる価値観キーワード（例: 自律性・成果主義・人との関わり）",
     "firstAction": "今日からできる具体的な最初の一歩",
-    "esPhrase": "背中を押す一言（エッセンシャルフレーズ）"
+    "esPhrase": "ESに使える就活の軸フレーズ（例: 自分のペースで成果を出せる環境を重視しています）"
   }
 ]
 
@@ -33,7 +34,8 @@ const SYSTEM_PROMPT = `あなたはキャリア・ライフコーチです。ユ
 - 各拒否項目を独立に分析せず、全体からパターンを見つけてグループ化する
 - 結果は1〜3個に絞る
 - 「やりたくない」の裏にある本当の欲求を読み取る
-- 具体的で実行可能なアドバイスにする`;
+- 具体的で実行可能なアドバイスにする
+- valuesは「・」区切りで3〜5個のキーワードにする`;
 
 export async function transformRejections(
   rejections: string[],
@@ -81,6 +83,7 @@ export async function transformRejections(
   return parsed.map((item: Record<string, string>) => ({
     avoidPattern: item.avoidPattern || "",
     direction: item.direction || "",
+    values: item.values,
     firstAction: item.firstAction || "",
     esPhrase: item.esPhrase,
   }));

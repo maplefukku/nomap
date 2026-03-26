@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { ResultCard, type ResultData } from "../result-card";
 
 vi.mock("framer-motion", () => ({
@@ -20,6 +19,7 @@ vi.mock("framer-motion", () => ({
 const mockResult: ResultData = {
   avoidPattern: "他人に合わせて自分を消すパターン",
   direction: "自分の価値観を軸にした選択",
+  values: "自律性・成果主義・人との関わり",
   firstAction: "今日、自分が本当にやりたいことを1つ書き出す",
   esPhrase: "あなたの拒否は、あなたの羅針盤",
 };
@@ -39,50 +39,32 @@ describe("ResultCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders first action", () => {
+  it("renders values when provided", () => {
     render(<ResultCard result={mockResult} />);
     expect(
-      screen.getByText("今日、自分が本当にやりたいことを1つ書き出す")
+      screen.getByText("自律性・成果主義・人との関わり")
     ).toBeInTheDocument();
   });
 
-  it("renders essential phrase when provided", () => {
-    render(<ResultCard result={mockResult} />);
-    expect(
-      screen.getByText(/あなたの拒否は、あなたの羅針盤/)
-    ).toBeInTheDocument();
-  });
-
-  it("does not render essential phrase when not provided", () => {
-    const resultWithoutPhrase: ResultData = {
+  it("does not render values section when not provided", () => {
+    const resultWithoutValues: ResultData = {
       avoidPattern: "パターン",
       direction: "方向",
       firstAction: "アクション",
     };
-    render(<ResultCard result={resultWithoutPhrase} />);
-    expect(screen.queryByText(/"/)).not.toBeInTheDocument();
+    render(<ResultCard result={resultWithoutValues} />);
+    expect(screen.queryByText("あなたの価値観")).not.toBeInTheDocument();
   });
 
   it("renders all section labels", () => {
     render(<ResultCard result={mockResult} />);
-    expect(screen.getByText("回避パターン")).toBeInTheDocument();
+    expect(screen.getByText("避けるべき構造")).toBeInTheDocument();
     expect(screen.getByText("進むべき方向")).toBeInTheDocument();
-    expect(screen.getByText("最初の一歩")).toBeInTheDocument();
+    expect(screen.getByText("あなたの価値観")).toBeInTheDocument();
   });
 
-  it("renders copy button for esPhrase", () => {
+  it("renders card title", () => {
     render(<ResultCard result={mockResult} />);
-    const copyButton = screen.getByRole("button", { name: "ESにコピー" });
-    expect(copyButton).toBeInTheDocument();
-  });
-
-  it("does not render copy button when esPhrase is not provided", () => {
-    const resultWithoutPhrase: ResultData = {
-      avoidPattern: "パターン",
-      direction: "方向",
-      firstAction: "アクション",
-    };
-    render(<ResultCard result={resultWithoutPhrase} />);
-    expect(screen.queryByRole("button", { name: "ESにコピー" })).not.toBeInTheDocument();
+    expect(screen.getByText("あなたのNoMap")).toBeInTheDocument();
   });
 });
