@@ -108,6 +108,36 @@ describe("transformRejections", () => {
     ).rejects.toThrow();
   });
 
+  it("タイムアウト時にエラーをスローする", async () => {
+    const abortError = new DOMException("The operation was aborted", "AbortError");
+    mockFetch.mockRejectedValueOnce(abortError);
+
+    await expect(
+      transformRejections(["残業する"], "test-key")
+    ).rejects.toThrow("GLM APIがタイムアウトしました");
+  });
+
+  it("ネットワークエラー時にそのままスローする", async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
+
+    await expect(
+      transformRejections(["残業する"], "test-key")
+    ).rejects.toThrow("fetch failed");
+  });
+
+  it("配列以外のレスポンスでエラーをスローする", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: '{"key": "value"}' } }],
+      }),
+    });
+
+    await expect(
+      transformRejections(["残業する"], "test-key")
+    ).rejects.toThrow("Invalid response format");
+  });
+
   it("handles missing optional fields", async () => {
     const mockResponse = [
       {
