@@ -49,19 +49,33 @@ export async function transformRejections(
     },
   ];
 
-  const response = await fetch(`${GLM_BASE_URL}chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: GLM_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: 2000,
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+
+  let response: Response;
+  try {
+    response = await fetch(`${GLM_BASE_URL}chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: GLM_MODEL,
+        messages,
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error("GLM APIがタイムアウトしました");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     throw new Error(`GLM API error: ${response.status}`);
@@ -74,7 +88,14 @@ export async function transformRejections(
     throw new Error("Empty response from GLM API");
   }
 
-  const parsed = JSON.parse(content);
+  const jsonStr = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch {
+    throw new Error("GLM APIの応答をパースできませんでした");
+  }
 
   if (!Array.isArray(parsed)) {
     throw new Error("Invalid response format");
