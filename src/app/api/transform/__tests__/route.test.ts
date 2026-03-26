@@ -93,6 +93,39 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("GLM API key not configured");
   });
 
+  it("returns 400 for invalid JSON", async () => {
+    process.env.GLM_API_KEY = "test-key";
+
+    const request = new Request("http://localhost/api/transform", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "invalid json",
+    });
+
+    const response = await POST(request as any);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe("リクエストの形式が不正です");
+  });
+
+  it("returns 502 when transformRejections throws an error", async () => {
+    process.env.GLM_API_KEY = "test-key";
+    mockTransformRejections.mockRejectedValueOnce(new Error("API error"));
+
+    const request = new Request("http://localhost/api/transform", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rejections: ["残業する"] }),
+    });
+
+    const response = await POST(request as any);
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("API error");
+  });
+
   it("calls transformRejections with correct parameters", async () => {
     process.env.GLM_API_KEY = "my-api-key";
 
