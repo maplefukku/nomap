@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NoMap
 
-## Getting Started
+> 「嫌なこと」から今日の一歩を出すAI
 
-First, run the development server:
+**[nomap-blue.vercel.app](https://nomap-blue.vercel.app)**
+
+---
+
+## 特徴
+
+### ネガティブ変換エンジン
+
+「やりたくないこと」を3〜5個入力するだけ。AIが逆算して、あなたの方向性と最初の行動を提案します。
+
+- **避けるべき構造** — 嫌なことに共通するパターンを抽出
+- **逆方向の軸** — そのパターンの裏返しから、あなたに合う方向を導出
+- **今日の1アクション** — 考え込まずに動き出せる、具体的な最初の一歩
+
+### ESコピー出力
+
+変換結果を「自己PR・志望動機に使えるフレーズ」としてワンタップでコピー。就活のESにそのまま活かせます。
+
+---
+
+## 使い方
+
+1. 「嫌なこと・やりたくないこと」を3〜5個入力
+2. AIが分析して、方向性と最初のアクションを提案
+3. 結果をESコピーやSNSシェアで活用
+
+---
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | Next.js 16 / React 19 |
+| スタイリング | Tailwind CSS 4 / shadcn/ui |
+| アニメーション | Framer Motion |
+| AI | GLM API (glm-4.7) |
+| BaaS | Supabase |
+| テスト | Vitest / Testing Library |
+| デプロイ | Vercel |
+
+---
+
+## 開発
 
 ```bash
+# 依存インストール
+npm install
+
+# 開発サーバー起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# ビルド
+npm run build
+
+# テスト
+npx vitest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+環境変数として `GLM_API_KEY` の設定が必要です。
