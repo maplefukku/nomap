@@ -12,6 +12,23 @@ import { EmptyState } from "@/components/empty-state";
 
 type Phase = "lp" | "input" | "loading" | "result";
 
+const fade = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.3 },
+} as const;
+
+const errorFade = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+} as const;
+
+const hoverTap = {
+  whileHover: { scale: 1.02 },
+  whileTap: { scale: 0.98 },
+} as const;
+
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("lp");
   const [results, setResults] = useState<ResultData[]>([]);
@@ -48,6 +65,19 @@ export default function Home() {
     setError(null);
   }, []);
 
+  const handleShare = useCallback(() => {
+    const first = results[0];
+    if (!first) return;
+    const text = encodeURIComponent(
+      `私のNoMap: ${first.direction} - ${first.firstAction} #NoMap`
+    );
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }, [results]);
+
   return (
     <div className="flex min-h-full flex-col bg-background">
       <Header />
@@ -56,10 +86,7 @@ export default function Home() {
           {phase === "lp" && (
             <motion.section
               key="lp"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              {...fade}
               className="flex min-h-[70dvh] flex-col items-center justify-center px-4 text-center"
             >
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
@@ -71,10 +98,10 @@ export default function Home() {
                 絶対に嫌なことを入れると、AIが避けるべき方向と今日できる最初の1アクションを返します
               </p>
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                {...hoverTap}
                 onClick={() => setPhase("input")}
                 className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90"
+                aria-label="無料で始める"
               >
                 無料で始める
               </motion.button>
@@ -108,10 +135,7 @@ export default function Home() {
           {phase === "result" ? (
             <motion.div
               key="results"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              {...fade}
               className="flex flex-col gap-6"
             >
               <div className="flex items-center justify-between">
@@ -125,30 +149,19 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      const first = results[0];
-                      if (!first) return;
-                      const text = encodeURIComponent(
-                        `私のNoMap: ${first.direction} - ${first.firstAction} #NoMap`
-                      );
-                      window.open(
-                        `https://twitter.com/intent/tweet?text=${text}`,
-                        "_blank",
-                        "noopener,noreferrer"
-                      );
-                    }}
+                    {...hoverTap}
+                    onClick={handleShare}
                     className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label="Xでシェア"
                   >
-                    <Share2 className="h-4 w-4" />
+                    <Share2 className="h-4 w-4" aria-hidden="true" />
                     Xでシェア
                   </motion.button>
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    {...hoverTap}
                     onClick={handleReset}
                     className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label="やり直す"
                   >
                     やり直す
                   </motion.button>
@@ -171,10 +184,7 @@ export default function Home() {
             phase !== "lp" && (
               <motion.div
                 key="input"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                {...fade}
                 className="flex flex-col gap-8"
               >
                 <RejectionInput
@@ -184,8 +194,7 @@ export default function Home() {
 
                 {error && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    {...errorFade}
                     className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
                     role="alert"
                   >

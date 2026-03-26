@@ -1,13 +1,18 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 
-export function EmptyState() {
+const emptyFade = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { duration: 0.5, delay: 0.2 },
+} as const;
+
+export const EmptyState = memo(function EmptyState() {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      {...emptyFade}
       className="flex flex-col items-center gap-4 py-16 text-center"
     >
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
@@ -31,4 +36,4 @@ export function EmptyState() {
       </div>
     </motion.div>
   );
-}
+});

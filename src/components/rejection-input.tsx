@@ -3,6 +3,18 @@
 import { useState, useRef, useCallback, type KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const tagAnimation = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.8 },
+  transition: { duration: 0.15 },
+} as const;
+
+const hoverTap = {
+  whileHover: { scale: 1.02 },
+  whileTap: { scale: 0.98 },
+} as const;
+
 interface RejectionInputProps {
   onSubmit: (rejections: string[]) => void;
   isLoading?: boolean;
@@ -64,10 +76,7 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
             <motion.span
               key={item}
               layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.15 }}
+              {...tagAnimation}
               className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-3 py-1.5 text-sm text-foreground"
             >
               {item}
@@ -105,8 +114,7 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
           {items.length > 0 ? `${items.length}件の拒否` : "Enterで追加"}
         </span>
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          {...hoverTap}
           onClick={handleSubmit}
           disabled={items.length === 0 || isLoading}
           className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"

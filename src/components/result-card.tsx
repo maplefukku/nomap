@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 
 export interface ResultData {
@@ -20,7 +21,7 @@ const fadeInUp = {
   animate: { opacity: 1, y: 0 },
 };
 
-export function ResultCard({ result, index = 0 }: ResultCardProps) {
+export const ResultCard = memo(function ResultCard({ result, index = 0 }: ResultCardProps) {
   return (
     <motion.div
       variants={fadeInUp}
@@ -67,6 +68,6 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
       )}
     </motion.div>
   );
-}
+});
 
 export { ResultCard as NoMapCard };
