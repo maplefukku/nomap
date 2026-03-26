@@ -1,4 +1,5 @@
 import type { ResultData } from "@/components/result-card";
+import { GLM_API_TIMEOUT_MS, GLM_MAX_TOKENS, GLM_TEMPERATURE } from "@/lib/constants";
 
 const GLM_BASE_URL =
   process.env.GLM_BASE_URL || "https://api.z.ai/api/coding/paas/v4/";
@@ -51,7 +52,7 @@ export async function transformRejections(
   ];
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30_000);
+  const timeout = setTimeout(() => controller.abort(), GLM_API_TIMEOUT_MS);
 
   let response: Response;
   try {
@@ -64,8 +65,8 @@ export async function transformRejections(
       body: JSON.stringify({
         model: GLM_MODEL,
         messages,
-        temperature: 0.7,
-        max_tokens: 2000,
+        temperature: GLM_TEMPERATURE,
+        max_tokens: GLM_MAX_TOKENS,
       }),
       signal: controller.signal,
     });

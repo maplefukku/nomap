@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
+import { fadeInUp } from "@/lib/constants";
 
 export default function Error({
   error,
@@ -17,8 +18,7 @@ export default function Error({
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
+        {...fadeInUp(12)}
         className="text-center space-y-3"
       >
         <h2 className="text-2xl font-bold tracking-tight">

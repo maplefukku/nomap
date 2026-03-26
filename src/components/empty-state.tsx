@@ -2,10 +2,10 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { fade } from "@/lib/constants";
 
 const emptyFade = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
+  ...fade,
   transition: { duration: 0.5, delay: 0.2 },
 } as const;
 

@@ -2,18 +2,7 @@
 
 import { useState, useRef, useCallback, type KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const tagAnimation = {
-  initial: { opacity: 0, scale: 0.8 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.8 },
-  transition: { duration: 0.15 },
-} as const;
-
-const hoverTap = {
-  whileHover: { scale: 1.02 },
-  whileTap: { scale: 0.98 },
-} as const;
+import { tagAnimation, hoverTap } from "@/lib/constants";
 
 interface RejectionInputProps {
   onSubmit: (rejections: string[]) => void;

@@ -2,16 +2,13 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { fadeInUp } from "@/lib/constants";
 
 interface ActionCardProps {
   action: string;
 }
 
-const actionFadeIn = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.4, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] },
-} as const;
+const actionFadeIn = fadeInUp(12, 0.2);
 
 export const ActionCard = memo(function ActionCard({ action }: ActionCardProps) {
   return (

@@ -9,25 +9,11 @@ import { ResultCard, type ResultData } from "@/components/result-card";
 import { ActionCard } from "@/components/action-card";
 import { ESCopyCard } from "@/components/es-copy-card";
 import { EmptyState } from "@/components/empty-state";
+import { fade, fadeInUp, hoverTap } from "@/lib/constants";
 
 type Phase = "lp" | "input" | "loading" | "result";
 
-const fade = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.3 },
-} as const;
-
-const errorFade = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-} as const;
-
-const hoverTap = {
-  whileHover: { scale: 1.02 },
-  whileTap: { scale: 0.98 },
-} as const;
+const errorFade = fadeInUp(8);
 
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("lp");

@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { EASE_OUT_QUART } from "@/lib/constants";
 
 export interface ResultData {
   avoidPattern: string;
@@ -16,7 +17,7 @@ interface ResultCardProps {
   index?: number;
 }
 
-const fadeInUp = {
+const cardFadeInUp = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
 };
@@ -24,10 +25,10 @@ const fadeInUp = {
 export const ResultCard = memo(function ResultCard({ result, index = 0 }: ResultCardProps) {
   return (
     <motion.div
-      variants={fadeInUp}
+      variants={cardFadeInUp}
       initial="initial"
       animate="animate"
-      transition={{ duration: 0.4, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.4, delay: index * 0.1, ease: EASE_OUT_QUART }}
       className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
     >
       <h2 className="text-xl font-bold tracking-tight text-foreground">
