@@ -11,8 +11,6 @@ vi.mock("framer-motion", () => ({
     ),
     button: ({
       children,
-      _whileHover,
-      _whileTap,
       ...props
     }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
       whileHover?: unknown;
