@@ -1,7 +1,8 @@
 import type { ResultData } from "@/components/result-card";
 
-const GLM_BASE_URL = "https://api.z.ai/api/coding/paas/v4/";
-const GLM_MODEL = "glm-4.7";
+const GLM_BASE_URL =
+  process.env.GLM_BASE_URL || "https://api.z.ai/api/coding/paas/v4/";
+const GLM_MODEL = process.env.GLM_MODEL || "glm-4.7";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";

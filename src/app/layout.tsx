@@ -19,6 +19,23 @@ export const metadata: Metadata = {
   title: "NoMap — やりたくないから、地図をつくる",
   description:
     "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+  openGraph: {
+    title: "NoMap — やりたくないから、地図をつくる",
+    description:
+      "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "NoMap — やりたくないから、地図をつくる",
+    description:
+      "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
