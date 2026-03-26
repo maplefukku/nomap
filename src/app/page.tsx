@@ -1,65 +1,126 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Header } from "@/components/header";
+import { RejectionInput } from "@/components/rejection-input";
+import { ResultCard, type ResultData } from "@/components/result-card";
+import { EmptyState } from "@/components/empty-state";
+
+type Phase = "input" | "loading" | "result";
 
 export default function Home() {
+  const [phase, setPhase] = useState<Phase>("input");
+  const [results, setResults] = useState<ResultData[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = useCallback(async (rejections: string[]) => {
+    setPhase("loading");
+    setError(null);
+
+    try {
+      const response = await fetch("/api/transform", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rejections }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "変換に失敗しました");
+      }
+
+      const data = await response.json();
+      setResults(data.results);
+      setPhase("result");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "予期しないエラーが発生しました");
+      setPhase("input");
+    }
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setResults([]);
+    setPhase("input");
+    setError(null);
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex min-h-full flex-col bg-background">
+      <Header />
+      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-10">
+        <AnimatePresence mode="wait">
+          {phase === "result" ? (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col gap-6"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                    あなたの地図
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    拒否の裏にある、本当に進みたい方向
+                  </p>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleReset}
+                  className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  やり直す
+                </motion.button>
+              </div>
+              <div className="flex flex-col gap-4">
+                {results.map((result, i) => (
+                  <ResultCard key={i} result={result} index={i} />
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="input"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col gap-8"
             >
-              Learning
-            </a>{" "}
-            center.
+              <RejectionInput
+                onSubmit={handleSubmit}
+                isLoading={phase === "loading"}
+              />
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+                  role="alert"
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              {results.length === 0 && phase === "input" && <EmptyState />}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      <footer className="border-t border-border/50 py-6">
+        <div className="mx-auto max-w-2xl px-6">
+          <p className="text-center text-xs text-muted-foreground">
+            NoMap — 「やりたくないこと」からあなたの地図をつくる
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
     </div>
   );
 }

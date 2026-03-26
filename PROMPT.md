@@ -1,95 +1,84 @@
-# NoMap（ノーマップ）- メインUI実装
+# NoMap 認証+DB実装タスク
 
 ## 概要
-「嫌なこと」から今日の一歩を出すAIアプリのメインUIを実装する。
+NoMap（ノーマップ）は「やりたくない」から自分の地図を作るAIツール。
 
-## アーキテクチャ
-- Frontend: Next.js 14 (App Router) + TypeScript + Tailwind CSS
-- Backend: Supabase (Auth, DB) + Next.js API Routes
-- AI: GLM API (glm-4.7)
-- Hosting: Vercel
-- Domain: nomap.vercel.app
+## PRDから抽出した必要機能
+1. ユーザー認証（Supabase Auth）
+2. ネガティブ入力（拒否リスト）の保存
+3. AI変換結果の保存
+4. ユーザーごとの履歴管理
 
-## 実装する画面
+## 実装タスク
 
-### 1. ランディングページ（LP）
-- ヒーロー: 「やりたくない」から自分の地図を作る
-- CTA: 「無料で始める」ボタン
-- 3つの特徴: 5分で完了 / ESに使える / シェア可能
+### 1. Supabase設定
+- Supabaseプロジェクト設定（既存のsora-personal組織を使用）
+- Supabase Auth（メール認証）
 
-### 2. 拒否入力画面
-- 「絶対に嫌なこと」を3-5個入力
-- プレースホルダーに具体例を表示
-- 3つ以上入力でボタン活性化
+### 2. DBスキーマ設計
 
-### 3. 結果画面（NoMapカード）
-- 避けるべき構造
-- 進むべき方向
-- あなたの価値観
-- 今日できる最初の1アクション
-- ESに使える「軸」（コピーボタン付き）
+```sql
+-- ユーザープロファイル
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id),
+  email TEXT,
+  display_name TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-## デザインルール（DESIGN_SYSTEM.md準拠）
-- Apple/Notion/Linearレベルのデザイン品質
-- グレースケール + アクセント1色
-- rounded-2xl / shadow-sm / backdrop-blur-xl
-- 1画面1意思決定
-- ダークモード必須（next-themes）
-- framer-motionでアニメーション
-- shadcn/ui + カスタマイズ
+-- 拒否入力セッション
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-## 技術スタック
-```bash
-# セットアップ済み
-npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir
-npx shadcn@latest init
-npx shadcn@latest add button card input dialog
-npm install framer-motion lucide-react next-themes
+-- 拒否入力アイテム
+CREATE TABLE rejections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID REFERENCES sessions(id) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- AI変換結果
+CREATE TABLE results (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID REFERENCES sessions(id) NOT NULL,
+  avoid_pattern TEXT NOT NULL,
+  direction TEXT NOT NULL,
+  first_action TEXT NOT NULL,
+  es_phrase TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 ```
 
-## GLM API設定
-```env
-GLM_API_KEY=d4d5b41fda2845b48f8f55c4e3a1e3e9.TMSBR1aLRdCgSkEo
-GLM_BASE_URL=https://api.z.ai/api/coding/paas/v4/
-GLM_MODEL=glm-4.7
-```
+### 3. RLSポリシー
+- profiles: ユーザーは自分のプロファイルのみアクセス可能
+- sessions: ユーザーは自分のセッションのみアクセス可能
+- rejections: ユーザーは自分の拒否入力のみアクセス可能
+- results: ユーザーは自分の結果のみアクセス可能
 
-## 実装手順
+### 4. データアクセス層
+- src/lib/supabase/client.ts - クライアントサイド用
+- src/lib/supabase/server.ts - サーバーサイド用
+- src/lib/db/sessions.ts - セッション操作
+- src/lib/db/results.ts - 結果操作
 
-### Phase 1: 基本セットアップ（10分）
-1. shadcn/uiのセットアップ
-2. framer-motion, lucide-react, next-themesのインストール
-3. ダークモード設定
-4. 基本レイアウト（Header, Footer）
+### 5. Migration作成
+- supabase/migrations/20260326_initial_schema.sql
 
-### Phase 2: ランディングページ（15分）
-1. Heroセクション
-2. 特徴セクション（3つの特徴）
-3. CTAセクション
+## 注意
+- 制限時間45分
+- Claude Codeに委任して実装
+- LLM: GLM API (GLM-4.7) のみ使用
+- OpenAI/GPT/OpenRouter禁止
 
-### Phase 3: 拒否入力画面（15分）
-1. 入力フォーム（3-5個）
-2. バリデーション
-3. 送信ボタン
-
-### Phase 4: 結果画面（15分）
-1. NoMapカード
-2. アクションカード
-3. ESコピーボタン
-4. シェアボタン
-
-### Phase 5: テスト（10分）
-1. テスト作成
-2. ビルド確認
-
-## 注意事項
-- テスト駆動開発（TDD）で実装
-- 日本語UI（翻訳くさくない自然な日本語）
-- 1画面1意思決定の原則
-- モバイルファースト
-
-## 完了報告フォーマット
-STATUS: OK または FAIL
-FILES_CHANGED: [変更したファイルリスト]
-TEST_RESULT: X passed, Y failed
-BUILD: pass/fail
+## 実行手順
+1. supabase init
+2. migration作成
+3. Supabaseクライアント設定
+4. データアクセス層実装
+5. テスト作成
+6. npm run build で確認
