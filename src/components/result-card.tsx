@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ClipboardCopy } from "lucide-react";
+import { toast } from "sonner";
 
 export interface ResultData {
   avoidPattern: string;
@@ -54,10 +56,21 @@ export function ResultCard({ result, index = 0 }: ResultCardProps) {
       </div>
 
       {result.esPhrase && (
-        <div className="rounded-xl bg-accent-muted px-4 py-3">
-          <p className="text-sm font-medium italic text-accent">
+        <div className="relative rounded-xl bg-accent-muted px-4 py-3">
+          <p className="pr-10 text-sm font-medium italic text-accent">
             &ldquo;{result.esPhrase}&rdquo;
           </p>
+          <button
+            type="button"
+            onClick={async () => {
+              await navigator.clipboard.writeText(result.esPhrase!);
+              toast.success("ES用フレーズをコピーしました");
+            }}
+            className="absolute bottom-3 right-3 rounded-lg p-1.5 text-accent/60 transition-colors hover:bg-accent/10 hover:text-accent"
+            aria-label="ESにコピー"
+          >
+            <ClipboardCopy className="h-4 w-4" />
+          </button>
         </div>
       )}
     </motion.div>

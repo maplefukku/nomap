@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Share2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { RejectionInput } from "@/components/rejection-input";
 import { ResultCard, type ResultData } from "@/components/result-card";
@@ -68,14 +69,36 @@ export default function Home() {
                     拒否の裏にある、本当に進みたい方向
                   </p>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleReset}
-                  className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  やり直す
-                </motion.button>
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      const first = results[0];
+                      if (!first) return;
+                      const text = encodeURIComponent(
+                        `私のNoMap: ${first.direction} - ${first.firstAction} #NoMap`
+                      );
+                      window.open(
+                        `https://twitter.com/intent/tweet?text=${text}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }}
+                    className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Xでシェア
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleReset}
+                    className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    やり直す
+                  </motion.button>
+                </div>
               </div>
               <div className="flex flex-col gap-4">
                 {results.map((result, i) => (

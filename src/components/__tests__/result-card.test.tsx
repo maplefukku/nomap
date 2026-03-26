@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ResultCard, type ResultData } from "../result-card";
 
 vi.mock("framer-motion", () => ({
@@ -67,5 +68,21 @@ describe("ResultCard", () => {
     expect(screen.getByText("回避パターン")).toBeInTheDocument();
     expect(screen.getByText("進むべき方向")).toBeInTheDocument();
     expect(screen.getByText("最初の一歩")).toBeInTheDocument();
+  });
+
+  it("renders copy button for esPhrase", () => {
+    render(<ResultCard result={mockResult} />);
+    const copyButton = screen.getByRole("button", { name: "ESにコピー" });
+    expect(copyButton).toBeInTheDocument();
+  });
+
+  it("does not render copy button when esPhrase is not provided", () => {
+    const resultWithoutPhrase: ResultData = {
+      avoidPattern: "パターン",
+      direction: "方向",
+      firstAction: "アクション",
+    };
+    render(<ResultCard result={resultWithoutPhrase} />);
+    expect(screen.queryByRole("button", { name: "ESにコピー" })).not.toBeInTheDocument();
   });
 });
