@@ -81,7 +81,7 @@ export default function Home() {
   return (
     <div className="flex min-h-full flex-col bg-background">
       <Header />
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-10">
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10">
         <AnimatePresence mode="wait">
           {phase === "lp" && (
             <motion.section
@@ -210,7 +210,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-border/50 py-6">
-        <div className="mx-auto max-w-2xl px-6">
+        <div className="mx-auto max-w-lg px-6">
           <p className="text-center text-xs text-muted-foreground">
             NoMap — 「やりたくないこと」からあなたの地図をつくる
           </p>

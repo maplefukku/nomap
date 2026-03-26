@@ -41,8 +41,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-muted: var(--accent-muted);
   --color-destructive: var(--destructive);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), var(--font-noto-sans-jp), system-ui, -apple-system, sans-serif;
 }
 
 * {
