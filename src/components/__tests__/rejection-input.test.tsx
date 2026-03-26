@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RejectionInput } from "../rejection-input";
 
@@ -11,8 +11,8 @@ vi.mock("framer-motion", () => ({
     ),
     button: ({
       children,
-      whileHover,
-      whileTap,
+      _whileHover,
+      _whileTap,
       ...props
     }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
       whileHover?: unknown;
