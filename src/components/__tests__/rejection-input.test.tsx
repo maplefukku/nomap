@@ -4,18 +4,47 @@ import userEvent from "@testing-library/user-event";
 import { RejectionInput } from "../rejection-input";
 
 // Mock framer-motion to avoid animation issues in tests
+const motionProps = [
+  "whileHover",
+  "whileTap",
+  "whileFocus",
+  "whileDrag",
+  "whileInView",
+  "layout",
+  "layoutId",
+  "initial",
+  "animate",
+  "exit",
+  "transition",
+  "variants",
+  "drag",
+  "dragConstraints",
+  "onDragEnd",
+];
+
+function filterMotionProps(props: Record<string, unknown>) {
+  const filtered: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (!motionProps.includes(key)) {
+      filtered[key] = value;
+    }
+  }
+  return filtered;
+}
+
 vi.mock("framer-motion", () => ({
   motion: {
-    span: ({ children, ...props }: React.HTMLAttributes<HTMLSpanElement>) => (
-      <span {...props}>{children}</span>
+    span: ({ children, ...props }: Record<string, unknown>) => (
+      <span {...filterMotionProps(props)}>{children as React.ReactNode}</span>
     ),
-    button: ({
-      children,
-      ...props
-    }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-      whileHover?: unknown;
-      whileTap?: unknown;
-    }) => <button {...props}>{children}</button>,
+    button: ({ children, ...props }: Record<string, unknown>) => (
+      <button {...filterMotionProps(props)}>
+        {children as React.ReactNode}
+      </button>
+    ),
+    div: ({ children, ...props }: Record<string, unknown>) => (
+      <div {...filterMotionProps(props)}>{children as React.ReactNode}</div>
+    ),
   },
   AnimatePresence: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>
