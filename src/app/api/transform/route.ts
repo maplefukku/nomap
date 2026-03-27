@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     // ユーザー向けに安全なエラーメッセージのみ返す（内部詳細を露出しない）
-    const safeMessages = [
+    const safeMessages: string[] = [
       messages.api.timeout,
       messages.api.emptyResponse,
       messages.api.parseFailed,
