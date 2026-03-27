@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <div className="flex min-h-full flex-col bg-background">
       <Header />
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10">
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10 md:max-w-2xl">
         <AnimatePresence mode="wait">
           {phase === "lp" && (
             <motion.section
@@ -80,13 +80,14 @@ export default function Home() {
                 <br />
                 自分の地図を作る
               </h1>
-              <p className="mt-4 max-w-sm text-lg text-muted-foreground">
+              <p className="mt-4 max-w-sm text-lg text-muted-foreground md:max-w-md">
                 絶対に嫌なことを入れると、AIが避けるべき方向と今日できる最初の1アクションを返します
               </p>
               <motion.button
                 {...hoverTap}
+                type="button"
                 onClick={() => setPhase("input")}
-                className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90"
+                className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label="無料で始める"
               >
                 無料で始める
@@ -136,8 +137,9 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <motion.button
                     {...hoverTap}
+                    type="button"
                     onClick={handleShare}
-                    className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                     aria-label="Xでシェア"
                   >
                     <Share2 className="h-4 w-4" aria-hidden="true" />
@@ -145,8 +147,9 @@ export default function Home() {
                   </motion.button>
                   <motion.button
                     {...hoverTap}
+                    type="button"
                     onClick={handleReset}
-                    className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                     aria-label="やり直す"
                   >
                     やり直す
@@ -196,7 +199,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-border/50 py-6">
-        <div className="mx-auto max-w-lg px-6">
+        <div className="mx-auto max-w-lg px-6 md:max-w-2xl">
           <p className="text-center text-xs text-muted-foreground">
             NoMap — 「やりたくないこと」からあなたの地図をつくる
           </p>

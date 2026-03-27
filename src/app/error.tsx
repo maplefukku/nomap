@@ -32,8 +32,9 @@ export default function Error({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
+        type="button"
         onClick={reset}
-        className="rounded-2xl bg-foreground text-background px-6 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-foreground/90"
+        className="rounded-2xl bg-foreground text-background px-6 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label="再試行"
       >
         もう一度試す

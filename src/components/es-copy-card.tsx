@@ -33,7 +33,7 @@ export const ESCopyCard = memo(function ESCopyCard({ phrase }: ESCopyCardProps) 
         <button
           type="button"
           onClick={handleCopy}
-          className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           aria-label="ESにコピー"
         >
           <ClipboardCopy className="h-4 w-4" aria-hidden="true" />

@@ -16,7 +16,7 @@ export const EmptyState = memo(function EmptyState() {
       className="flex flex-col items-center gap-4 py-16 text-center"
     >
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-muted-foreground">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-muted-foreground">
           <path
             d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
             stroke="currentColor"

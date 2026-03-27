@@ -75,10 +75,10 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
                   e.stopPropagation();
                   removeItem(index);
                 }}
-                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                 aria-label={`「${item}」を削除`}
               >
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
                   <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </button>
@@ -92,7 +92,7 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={items.length === 0 ? "例：満員電車で通勤する" : "さらに追加..."}
-          className="min-w-[180px] flex-1 bg-transparent py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+          className="min-w-[180px] flex-1 bg-transparent py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus-visible:outline-none"
           disabled={isLoading}
           aria-label="拒否項目を入力"
         />
@@ -106,7 +106,8 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
           {...hoverTap}
           onClick={handleSubmit}
           disabled={items.length === 0 || isLoading}
-          className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          type="button"
+          className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           {isLoading ? (
             <>
