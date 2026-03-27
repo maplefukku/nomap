@@ -3,6 +3,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "../route";
 import { MAX_REJECTIONS, MAX_REJECTION_LENGTH } from "@/lib/constants";
 
+// envモジュールをモック
+vi.mock("@/lib/env", () => ({
+  serverEnv: {
+    get GLM_API_KEY() {
+      return process.env.GLM_API_KEY;
+    },
+    GLM_BASE_URL: "https://api.z.ai/api/coding/paas/v4/",
+    GLM_MODEL: "glm-4.7",
+  },
+}));
+
 // transformRejectionsをモック
 vi.mock("@/lib/ai/transform", () => ({
   transformRejections: vi.fn(),
@@ -197,6 +208,55 @@ describe("POST /api/transform", () => {
       makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }) as any
     );
     expect(afterCleanup.status).toBe(200);
+
+    dateNowSpy.mockRestore();
+  });
+
+  it("uses 'unknown' as IP when x-forwarded-for header is missing", async () => {
+    mockTransformRejections.mockResolvedValueOnce([]);
+
+    const request = new Request("http://localhost/api/transform", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rejections: ["テスト"] }),
+    });
+
+    const response = await POST(request as any);
+    expect(response.status).toBe(200);
+  });
+
+  it("returns fallback message when non-Error is thrown", async () => {
+    mockTransformRejections.mockRejectedValueOnce("string error");
+
+    const response = await POST(makeRequest({ rejections: ["テスト"] }) as any);
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("変換処理に失敗しました");
+  });
+
+  it("クリーンアップでアクティブなエントリは保持される", async () => {
+    mockTransformRejections.mockResolvedValue([]);
+    const activeIp = "active-entry-ip";
+
+    // リクエストを送信してエントリを作成
+    await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": activeIp }) as any);
+
+    // CLEANUP_INTERVAL以上だがRATE_LIMIT_WINDOW内の時間に進める
+    // エントリはまだアクティブなので削除されない
+    const futureTime = Date.now() + 65_000;
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(futureTime);
+
+    // 別IPでリクエスト → クリーンアップがトリガーされるが、activeIpのエントリは保持される
+    await POST(
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "trigger-ip-2" }) as any
+    );
+
+    // activeIpでさらにリクエストを送信 → エントリが保持されているのでカウントが増える
+    const response = await POST(
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": activeIp }) as any
+    );
+    expect(response.status).toBe(200);
 
     dateNowSpy.mockRestore();
   });

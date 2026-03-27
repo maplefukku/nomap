@@ -1,9 +1,6 @@
 import type { ResultData } from "@/components/result-card";
 import { GLM_API_TIMEOUT_MS, GLM_MAX_TOKENS, GLM_TEMPERATURE } from "@/lib/constants";
-
-const GLM_BASE_URL =
-  process.env.GLM_BASE_URL || "https://api.z.ai/api/coding/paas/v4/";
-const GLM_MODEL = process.env.GLM_MODEL || "glm-4.7";
+import { serverEnv } from "@/lib/env";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -56,14 +53,14 @@ export async function transformRejections(
 
   let response: Response;
   try {
-    response = await fetch(`${GLM_BASE_URL}chat/completions`, {
+    response = await fetch(`${serverEnv.GLM_BASE_URL}chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: GLM_MODEL,
+        model: serverEnv.GLM_MODEL,
         messages,
         temperature: GLM_TEMPERATURE,
         max_tokens: GLM_MAX_TOKENS,

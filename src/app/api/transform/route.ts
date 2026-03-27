@@ -6,6 +6,7 @@ import {
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX_REQUESTS,
 } from "@/lib/constants";
+import { serverEnv } from "@/lib/env";
 
 // Simple in-memory rate limiter (per IP)
 const requestLog = new Map<string, number[]>();
@@ -71,7 +72,7 @@ function sanitizeRejections(
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.GLM_API_KEY;
+  const apiKey = serverEnv.GLM_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json(

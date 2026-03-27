@@ -1,4 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+vi.mock("@/lib/env", () => ({
+  serverEnv: {
+    GLM_API_KEY: "test-key",
+    GLM_BASE_URL: "https://api.z.ai/api/coding/paas/v4/",
+    GLM_MODEL: "glm-4.7",
+  },
+}));
+
 import { transformRejections } from "../transform";
 
 const mockFetch = vi.fn();
