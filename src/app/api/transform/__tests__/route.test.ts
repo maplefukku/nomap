@@ -120,6 +120,20 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("変換処理に失敗しました");
   });
 
+  it("安全なGLM APIエラーメッセージはそのまま返される", async () => {
+    mockTransformRejections.mockRejectedValueOnce(
+      new Error("GLM APIエラー（ステータス: 503）"),
+    );
+
+    const response = await POST(
+      makeRequest({ rejections: ["残業する"] }) as any,
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("GLM APIエラー（ステータス: 503）");
+  });
+
   it("calls transformRejections with correct parameters", async () => {
     process.env.GLM_API_KEY = "my-api-key";
     mockTransformRejections.mockResolvedValueOnce([]);
