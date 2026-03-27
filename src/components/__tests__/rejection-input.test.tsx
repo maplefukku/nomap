@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RejectionInput } from "../rejection-input";
 
@@ -100,6 +100,53 @@ describe("RejectionInput", () => {
     expect(
       screen.getByText("Enterで追加、Backspaceで削除"),
     ).toBeInTheDocument();
+  });
+
+  it("文字数上限を超えた入力はヒントを表示して追加されない", () => {
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+    const longText = "あ".repeat(201);
+    fireEvent.change(input, { target: { value: longText } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(
+      screen.getByText("200文字以内で入力してください"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Enterで追加、Backspaceで削除"),
+    ).toBeInTheDocument();
+  });
+
+  it("ヒント表示中に入力するとヒントがクリアされる", () => {
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+    const longText = "あ".repeat(201);
+    fireEvent.change(input, { target: { value: longText } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(
+      screen.getByText("200文字以内で入力してください"),
+    ).toBeInTheDocument();
+
+    // 入力を変更するとヒントがクリアされる
+    fireEvent.change(input, { target: { value: "テスト" } });
+    expect(
+      screen.queryByText("200文字以内で入力してください"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("空文字のままEnterを押しても追加されない", async () => {
+    const user = userEvent.setup();
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+    await user.keyboard("{Enter}");
+
+    expect(
+      screen.getByText("Enterで追加、Backspaceで削除"),
+    ).toBeInTheDocument();
+    expect(input).toHaveValue("");
   });
 
   it("removes an item when delete button is clicked", async () => {

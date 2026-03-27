@@ -215,6 +215,48 @@ describe("transformRejections", () => {
     expect(results[0].esPhrase).toBeUndefined();
   });
 
+  it("配列要素がオブジェクトでない場合にデフォルト値が使われる", async () => {
+    const mockResponse = ["文字列", 42, null];
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
+      }),
+    });
+
+    const results = await transformRejections(["テスト"], "test-key");
+
+    expect(results).toHaveLength(3);
+    for (const r of results) {
+      expect(r.avoidPattern).toBe("");
+      expect(r.direction).toBe("");
+      expect(r.firstAction).toBe("");
+    }
+  });
+
+  it("firstActionが文字列でない場合に空文字になる", async () => {
+    const mockResponse = [
+      {
+        avoidPattern: "パターン",
+        direction: "方向",
+        firstAction: 123,
+        esPhrase: "フレーズ",
+      },
+    ];
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
+      }),
+    });
+
+    const results = await transformRejections(["テスト"], "test-key");
+
+    expect(results[0].firstAction).toBe("");
+  });
+
   it("フィールドが空文字・未定義の場合にデフォルト値が使われる", async () => {
     const mockResponse = [
       {

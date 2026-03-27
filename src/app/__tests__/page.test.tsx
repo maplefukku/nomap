@@ -333,6 +333,33 @@ describe("Home (page.tsx)", () => {
     expect(mockOpen).not.toHaveBeenCalled();
   });
 
+  it("非Errorオブジェクトがスローされた場合unexpectedErrorを表示する", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => {
+        const obj = {};
+        Object.defineProperty(obj, "results", {
+          get() {
+            throw "非Errorオブジェクト";
+          },
+        });
+        return obj;
+      },
+    });
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        messages.client.unexpectedError,
+      );
+    });
+  });
+
   it("resultsが配列でない場合エラーを表示する", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
