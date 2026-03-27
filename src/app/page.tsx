@@ -9,6 +9,7 @@ import { RejectionInput } from "@/components/rejection-input";
 import type { ResultData } from "@/components/result-card";
 import { EmptyState } from "@/components/empty-state";
 import { fade, fadeInUp, hoverTap } from "@/lib/constants";
+import { messages } from "@/lib/i18n";
 
 const ResultCard = dynamic(
   () => import("@/components/result-card").then((m) => m.ResultCard),
@@ -45,23 +46,21 @@ export default function Home() {
           body: JSON.stringify({ rejections }),
         });
       } catch {
-        throw new Error(
-          "ネットワークに接続できません。通信環境を確認してください",
-        );
+        throw new Error(messages.client.networkError);
       }
 
       let data: Record<string, unknown>;
       try {
         data = await response.json();
       } catch {
-        throw new Error(
-          "サーバーから不正な応答がありました。しばらく待ってからお試しください",
-        );
+        throw new Error(messages.client.invalidResponse);
       }
 
       if (!response.ok) {
         throw new Error(
-          typeof data.error === "string" ? data.error : "変換に失敗しました",
+          typeof data.error === "string"
+            ? data.error
+            : messages.client.transformFailed,
         );
       }
 
@@ -69,7 +68,7 @@ export default function Home() {
       setPhase("result");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "予期しないエラーが発生しました",
+        err instanceof Error ? err.message : messages.client.unexpectedError,
       );
       setPhase("input");
     }
@@ -109,62 +108,66 @@ export default function Home() {
               {...fade}
               className="flex min-h-[70dvh] flex-col items-center justify-center px-4 text-center"
             >
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                「やりたくない」から
-                <br />
-                自分の地図を作る
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl whitespace-pre-line">
+                {messages.lp.heading}
               </h1>
               <p className="mt-4 max-w-sm text-lg text-muted-foreground md:max-w-md">
-                絶対に嫌なことを入れると、AIが避けるべき方向と今日できる最初の1アクションを返します
+                {messages.lp.description}
               </p>
               <motion.button
                 {...hoverTap}
                 type="button"
                 onClick={() => setPhase("input")}
                 className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                aria-label="無料で始める"
+                aria-label={messages.lp.cta}
               >
-                無料で始める
+                {messages.lp.cta}
               </motion.button>
 
               <div className="mt-12 grid gap-4 sm:grid-cols-3">
                 <div
                   className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
                   role="group"
-                  aria-label="5分で完了"
+                  aria-label={messages.lp.feature1Title}
                 >
                   <span className="text-2xl" aria-hidden="true">
                     🎯
                   </span>
-                  <h2 className="mt-2 font-semibold">5分で完了</h2>
+                  <h2 className="mt-2 font-semibold">
+                    {messages.lp.feature1Title}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    就活で話せる「軸」ができる
+                    {messages.lp.feature1Desc}
                   </p>
                 </div>
                 <div
                   className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
                   role="group"
-                  aria-label="ESに使える"
+                  aria-label={messages.lp.feature2Title}
                 >
                   <span className="text-2xl" aria-hidden="true">
                     💡
                   </span>
-                  <h2 className="mt-2 font-semibold">ESに使える</h2>
+                  <h2 className="mt-2 font-semibold">
+                    {messages.lp.feature2Title}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    「嫌なこと」が「軸」に変わる
+                    {messages.lp.feature2Desc}
                   </p>
                 </div>
                 <div
                   className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
                   role="group"
-                  aria-label="シェア可能"
+                  aria-label={messages.lp.feature3Title}
                 >
                   <span className="text-2xl" aria-hidden="true">
                     📱
                   </span>
-                  <h2 className="mt-2 font-semibold">シェア可能</h2>
+                  <h2 className="mt-2 font-semibold">
+                    {messages.lp.feature3Title}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    「私のNoMap」を画像で共有
+                    {messages.lp.feature3Desc}
                   </p>
                 </div>
               </div>
@@ -176,10 +179,10 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                    あなたの地図
+                    {messages.result.heading}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    拒否の裏にある、本当に進みたい方向
+                    {messages.result.subheading}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -188,19 +191,19 @@ export default function Home() {
                     type="button"
                     onClick={handleShare}
                     className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-                    aria-label="Xでシェア"
+                    aria-label={messages.result.share}
                   >
                     <Share2 className="h-4 w-4" aria-hidden="true" />
-                    Xでシェア
+                    {messages.result.share}
                   </motion.button>
                   <motion.button
                     {...hoverTap}
                     type="button"
                     onClick={handleReset}
                     className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-                    aria-label="やり直す"
+                    aria-label={messages.result.reset}
                   >
-                    やり直す
+                    {messages.result.reset}
                   </motion.button>
                 </div>
               </div>
@@ -243,7 +246,7 @@ export default function Home() {
       <footer className="border-t border-border/50 py-6">
         <div className="mx-auto max-w-lg px-6 md:max-w-2xl">
           <p className="text-center text-xs text-muted-foreground">
-            NoMap — 「やりたくないこと」からあなたの地図をつくる
+            {messages.footer.tagline}
           </p>
         </div>
       </footer>

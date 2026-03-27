@@ -1,6 +1,11 @@
 import type { ResultData } from "@/components/result-card";
-import { GLM_API_TIMEOUT_MS, GLM_MAX_TOKENS, GLM_TEMPERATURE } from "@/lib/constants";
+import {
+  GLM_API_TIMEOUT_MS,
+  GLM_MAX_TOKENS,
+  GLM_TEMPERATURE,
+} from "@/lib/constants";
 import { serverEnv } from "@/lib/env";
+import { messages } from "@/lib/i18n";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -36,11 +41,23 @@ const SYSTEM_PROMPT = `あなたはキャリア・ライフコーチです。ユ
 - 具体的で実行可能なアドバイスにする
 - valuesは「・」区切りで3〜5個のキーワードにする`;
 
+/**
+ * 「やりたくないこと」リストをGLM APIで分析し、構造化された結果に変換する。
+ *
+ * GLM API (OpenAI互換) にシステムプロンプトとユーザー入力を送信し、
+ * 回避パターン・進むべき方向・価値観・最初のアクション・ES用フレーズを
+ * 含むJSON配列として応答を受け取る。
+ *
+ * @param rejections - ユーザーが入力した「やりたくないこと」の文字列配列
+ * @param apiKey - GLM APIの認証キー
+ * @returns 分析結果の配列（1〜3件）
+ * @throws タイムアウト、APIエラー、パース失敗時にErrorをスロー
+ */
 export async function transformRejections(
   rejections: string[],
-  apiKey: string
+  apiKey: string,
 ): Promise<ResultData[]> {
-  const messages: ChatMessage[] = [
+  const chatMessages: ChatMessage[] = [
     { role: "system", content: SYSTEM_PROMPT },
     {
       role: "user",
@@ -61,7 +78,7 @@ export async function transformRejections(
       },
       body: JSON.stringify({
         model: serverEnv.GLM_MODEL,
-        messages,
+        messages: chatMessages,
         temperature: GLM_TEMPERATURE,
         max_tokens: GLM_MAX_TOKENS,
       }),
@@ -69,7 +86,7 @@ export async function transformRejections(
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
-      throw new Error("GLM APIがタイムアウトしました");
+      throw new Error(messages.api.timeout);
     }
     throw err;
   } finally {
@@ -77,14 +94,14 @@ export async function transformRejections(
   }
 
   if (!response.ok) {
-    throw new Error(`GLM APIエラー（ステータス: ${response.status}）`);
+    throw new Error(messages.api.statusError(response.status));
   }
 
   const data: GLMResponse = await response.json();
   const content = data.choices[0]?.message?.content;
 
   if (!content) {
-    throw new Error("GLM APIから空の応答が返されました");
+    throw new Error(messages.api.emptyResponse);
   }
 
   const jsonStr = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
@@ -93,11 +110,11 @@ export async function transformRejections(
   try {
     parsed = JSON.parse(jsonStr);
   } catch {
-    throw new Error("GLM APIの応答をパースできませんでした");
+    throw new Error(messages.api.parseFailed);
   }
 
   if (!Array.isArray(parsed)) {
-    throw new Error("GLM APIの応答形式が不正です");
+    throw new Error(messages.api.invalidFormat);
   }
 
   return parsed.map((item: Record<string, string>) => ({
