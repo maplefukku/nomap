@@ -1,11 +1,14 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from "next";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://nomap-blue.vercel.app";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
-      userAgent: '*',
-      allow: '/',
+      userAgent: "*",
+      allow: "/",
     },
-    sitemap: 'https://nomap-blue.vercel.app/sitemap.xml',
-  }
+    sitemap: `${SITE_URL}/sitemap.xml`,
+  };
 }

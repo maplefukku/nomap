@@ -16,7 +16,11 @@ const notoSansJP = Noto_Sans_JP({
   weight: ["400", "500", "600", "700"],
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://nomap-blue.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "NoMap — やりたくないから、地図をつくる",
   description:
     "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
@@ -26,9 +30,11 @@ export const metadata: Metadata = {
       "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
     locale: "ja_JP",
     type: "website",
+    siteName: "NoMap",
+    url: SITE_URL,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "NoMap — やりたくないから、地図をつくる",
     description:
       "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
