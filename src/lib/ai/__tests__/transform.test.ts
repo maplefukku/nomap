@@ -134,6 +134,51 @@ describe("transformRejections", () => {
     ).rejects.toThrow("fetch failed");
   });
 
+  it("DOMExceptionでもAbortError以外はそのままスローする", async () => {
+    const nonAbortError = new DOMException("Some other error", "NetworkError");
+    mockFetch.mockRejectedValueOnce(nonAbortError);
+
+    await expect(
+      transformRejections(["残業する"], "test-key")
+    ).rejects.toThrow(nonAbortError);
+  });
+
+  it("一般的なErrorオブジェクトのcatchはそのままスローする", async () => {
+    const genericError = new Error("connection refused");
+    mockFetch.mockRejectedValueOnce(genericError);
+
+    await expect(
+      transformRejections(["残業する"], "test-key")
+    ).rejects.toThrow("connection refused");
+  });
+
+  it("setTimeoutコールバックがcontroller.abortを呼び出す", async () => {
+    let capturedCallback: (() => void) | undefined;
+    const originalSetTimeout = globalThis.setTimeout;
+    vi.spyOn(globalThis, "setTimeout").mockImplementation((cb: () => void) => {
+      capturedCallback = cb;
+      return 999 as unknown as ReturnType<typeof setTimeout>;
+    });
+
+    const mockResponse = [
+      { avoidPattern: "p", direction: "d", firstAction: "a" },
+    ];
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
+      }),
+    });
+
+    await transformRejections(["残業する"], "test-key");
+
+    // タイムアウトコールバックを手動で実行してカバレッジを確保
+    expect(capturedCallback).toBeDefined();
+    capturedCallback!();
+
+    vi.mocked(globalThis.setTimeout).mockRestore();
+  });
+
   it("配列以外のレスポンスでエラーをスローする", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,

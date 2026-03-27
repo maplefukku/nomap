@@ -57,6 +57,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <a
+          href="#main-content"
+          className="skip-link"
+        >
+          メインコンテンツへスキップ
+        </a>
         <ThemeProvider>
           {children}
           <Toaster richColors position="bottom-center" />
