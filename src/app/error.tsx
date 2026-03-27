@@ -12,15 +12,14 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    if (process.env.NODE_ENV === "development") {
+      console.error(error);
+    }
   }, [error]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
-      <motion.div
-        {...fadeInUp(12)}
-        className="text-center space-y-3"
-      >
+      <motion.div {...fadeInUp(12)} className="text-center space-y-3">
         <h2 className="text-2xl font-bold tracking-tight">
           問題が発生しました
         </h2>

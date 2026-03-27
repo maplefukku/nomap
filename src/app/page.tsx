@@ -37,22 +37,40 @@ export default function Home() {
     setError(null);
 
     try {
-      const response = await fetch("/api/transform", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rejections }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "変換に失敗しました");
+      let response: Response;
+      try {
+        response = await fetch("/api/transform", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rejections }),
+        });
+      } catch {
+        throw new Error(
+          "ネットワークに接続できません。通信環境を確認してください",
+        );
       }
 
-      const data = await response.json();
-      setResults(data.results);
+      let data: Record<string, unknown>;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          "サーバーから不正な応答がありました。しばらく待ってからお試しください",
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          typeof data.error === "string" ? data.error : "変換に失敗しました",
+        );
+      }
+
+      setResults(data.results as ResultData[]);
       setPhase("result");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "予期しないエラーが発生しました");
+      setError(
+        err instanceof Error ? err.message : "予期しないエラーが発生しました",
+      );
       setPhase("input");
     }
   }, []);
@@ -67,12 +85,12 @@ export default function Home() {
     const first = results[0];
     if (!first) return;
     const text = encodeURIComponent(
-      `私のNoMap: ${first.direction} - ${first.firstAction} #NoMap`
+      `私のNoMap: ${first.direction} - ${first.firstAction} #NoMap`,
     );
     window.open(
       `https://twitter.com/intent/tweet?text=${text}`,
       "_blank",
-      "noopener,noreferrer"
+      "noopener,noreferrer",
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- results is read inside but only called after results are set
   }, []);
@@ -80,7 +98,10 @@ export default function Home() {
   return (
     <div className="flex min-h-full flex-col bg-background">
       <Header />
-      <main id="main-content" className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10 md:max-w-2xl">
+      <main
+        id="main-content"
+        className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10 md:max-w-2xl"
+      >
         <AnimatePresence mode="wait">
           {phase === "lp" && (
             <motion.section
@@ -107,22 +128,40 @@ export default function Home() {
               </motion.button>
 
               <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md" role="group" aria-label="5分で完了">
-                  <span className="text-2xl" aria-hidden="true">🎯</span>
+                <div
+                  className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
+                  role="group"
+                  aria-label="5分で完了"
+                >
+                  <span className="text-2xl" aria-hidden="true">
+                    🎯
+                  </span>
                   <h2 className="mt-2 font-semibold">5分で完了</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     就活で話せる「軸」ができる
                   </p>
                 </div>
-                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md" role="group" aria-label="ESに使える">
-                  <span className="text-2xl" aria-hidden="true">💡</span>
+                <div
+                  className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
+                  role="group"
+                  aria-label="ESに使える"
+                >
+                  <span className="text-2xl" aria-hidden="true">
+                    💡
+                  </span>
                   <h2 className="mt-2 font-semibold">ESに使える</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     「嫌なこと」が「軸」に変わる
                   </p>
                 </div>
-                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md" role="group" aria-label="シェア可能">
-                  <span className="text-2xl" aria-hidden="true">📱</span>
+                <div
+                  className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
+                  role="group"
+                  aria-label="シェア可能"
+                >
+                  <span className="text-2xl" aria-hidden="true">
+                    📱
+                  </span>
                   <h2 className="mt-2 font-semibold">シェア可能</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     「私のNoMap」を画像で共有
@@ -133,11 +172,7 @@ export default function Home() {
           )}
 
           {phase === "result" ? (
-            <motion.div
-              key="results"
-              {...fade}
-              className="flex flex-col gap-6"
-            >
+            <motion.div key="results" {...fade} className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-2xl font-semibold tracking-tight text-foreground">
@@ -175,20 +210,14 @@ export default function Home() {
                   <div key={i} className="flex flex-col gap-4">
                     <ResultCard result={result} index={i} />
                     <ActionCard action={result.firstAction} />
-                    {result.esPhrase && (
-                      <ESCopyCard phrase={result.esPhrase} />
-                    )}
+                    {result.esPhrase && <ESCopyCard phrase={result.esPhrase} />}
                   </div>
                 ))}
               </div>
             </motion.div>
           ) : (
             phase !== "lp" && (
-              <motion.div
-                key="input"
-                {...fade}
-                className="flex flex-col gap-8"
-              >
+              <motion.div key="input" {...fade} className="flex flex-col gap-8">
                 <RejectionInput
                   onSubmit={handleSubmit}
                   isLoading={phase === "loading"}

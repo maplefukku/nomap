@@ -12,10 +12,16 @@ interface ESCopyCardProps {
 
 const esFadeIn = fadeInUp(12, 0.3);
 
-export const ESCopyCard = memo(function ESCopyCard({ phrase }: ESCopyCardProps) {
+export const ESCopyCard = memo(function ESCopyCard({
+  phrase,
+}: ESCopyCardProps) {
   const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(phrase);
-    toast.success("ES用フレーズをコピーしました");
+    try {
+      await navigator.clipboard.writeText(phrase);
+      toast.success("ES用フレーズをコピーしました");
+    } catch {
+      toast.error("コピーに失敗しました。手動でコピーしてください");
+    }
   }, [phrase]);
 
   return (

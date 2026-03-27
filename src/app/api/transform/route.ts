@@ -39,7 +39,7 @@ function isRateLimited(ip: string): boolean {
 }
 
 function sanitizeRejections(
-  raw: unknown
+  raw: unknown,
 ): { rejections: string[] } | { error: string } {
   if (!Array.isArray(raw) || raw.length === 0) {
     return { error: "拒否リストが空です" };
@@ -77,15 +77,16 @@ export async function POST(request: NextRequest) {
   if (!apiKey) {
     return NextResponse.json(
       { error: "GLM APIキーが設定されていません" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: "リクエストが多すぎます。しばらく待ってからお試しください" },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: "リクエストの形式が不正です" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -117,8 +118,18 @@ export async function POST(request: NextRequest) {
       },
     );
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "変換処理に失敗しました";
+    // ユーザー向けに安全なエラーメッセージのみ返す（内部詳細を露出しない）
+    const safeMessages = [
+      "GLM APIがタイムアウトしました",
+      "GLM APIから空の応答が返されました",
+      "GLM APIの応答をパースできませんでした",
+      "GLM APIの応答形式が不正です",
+    ];
+    const rawMessage = err instanceof Error ? err.message : "";
+    const isSafe =
+      rawMessage.startsWith("GLM APIエラー（ステータス:") ||
+      safeMessages.includes(rawMessage);
+    const message = isSafe ? rawMessage : "変換処理に失敗しました";
     return NextResponse.json(
       { error: message },
       {

@@ -20,7 +20,7 @@ vi.mock("@/lib/ai/transform", () => ({
 }));
 
 const mockTransformRejections = vi.mocked(
-  (await import("@/lib/ai/transform")).transformRejections
+  (await import("@/lib/ai/transform")).transformRejections,
 );
 
 function makeRequest(body: unknown, headers?: Record<string, string>) {
@@ -53,7 +53,9 @@ describe("POST /api/transform", () => {
 
     mockTransformRejections.mockResolvedValueOnce(mockResults);
 
-    const response = await POST(makeRequest({ rejections: ["残業する"] }) as any);
+    const response = await POST(
+      makeRequest({ rejections: ["残業する"] }) as any,
+    );
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -80,7 +82,9 @@ describe("POST /api/transform", () => {
   it("returns 500 when API key is not configured", async () => {
     delete process.env.GLM_API_KEY;
 
-    const response = await POST(makeRequest({ rejections: ["残業する"] }) as any);
+    const response = await POST(
+      makeRequest({ rejections: ["残業する"] }) as any,
+    );
     const data = await response.json();
 
     expect(response.status).toBe(500);
@@ -107,11 +111,13 @@ describe("POST /api/transform", () => {
   it("returns 502 when transformRejections throws an error", async () => {
     mockTransformRejections.mockRejectedValueOnce(new Error("API error"));
 
-    const response = await POST(makeRequest({ rejections: ["残業する"] }) as any);
+    const response = await POST(
+      makeRequest({ rejections: ["残業する"] }) as any,
+    );
     const data = await response.json();
 
     expect(response.status).toBe(502);
-    expect(data.error).toBe("API error");
+    expect(data.error).toBe("変換処理に失敗しました");
   });
 
   it("calls transformRejections with correct parameters", async () => {
@@ -122,12 +128,14 @@ describe("POST /api/transform", () => {
 
     expect(mockTransformRejections).toHaveBeenCalledWith(
       ["残業する", "夜勤"],
-      "my-api-key"
+      "my-api-key",
     );
   });
 
   it("returns 400 when rejections contain non-string items", async () => {
-    const response = await POST(makeRequest({ rejections: [123, true] }) as any);
+    const response = await POST(
+      makeRequest({ rejections: [123, true] }) as any,
+    );
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -135,7 +143,10 @@ describe("POST /api/transform", () => {
   });
 
   it("returns 400 when rejections exceed max count", async () => {
-    const tooMany = Array.from({ length: MAX_REJECTIONS + 1 }, (_, i) => `項目${i}`);
+    const tooMany = Array.from(
+      { length: MAX_REJECTIONS + 1 },
+      (_, i) => `項目${i}`,
+    );
 
     const response = await POST(makeRequest({ rejections: tooMany }) as any);
     const data = await response.json();
@@ -155,7 +166,9 @@ describe("POST /api/transform", () => {
   });
 
   it("trims whitespace-only rejections and returns 400 if all empty", async () => {
-    const response = await POST(makeRequest({ rejections: ["  ", "\t", ""] }) as any);
+    const response = await POST(
+      makeRequest({ rejections: ["  ", "\t", ""] }) as any,
+    );
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -168,12 +181,20 @@ describe("POST /api/transform", () => {
 
     // Send max requests
     for (let i = 0; i < 10; i++) {
-      await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": sharedIp }) as any);
+      await POST(
+        makeRequest(
+          { rejections: ["テスト"] },
+          { "x-forwarded-for": sharedIp },
+        ) as any,
+      );
     }
 
     // Next request should be rate limited
     const response = await POST(
-      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": sharedIp }) as any
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": sharedIp },
+      ) as any,
     );
     const data = await response.json();
 
@@ -186,7 +207,12 @@ describe("POST /api/transform", () => {
     const cleanupIp = "cleanup-test-ip-unique";
 
     // まず通常のリクエストを送信してrequestLogにエントリを作成
-    await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }) as any);
+    await POST(
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": cleanupIp },
+      ) as any,
+    );
 
     // CLEANUP_INTERVAL_MS(60s)以上 + RATE_LIMIT_WINDOW_MS(60s)以上を
     // 未来に進めてクリーンアップをトリガー
@@ -197,7 +223,10 @@ describe("POST /api/transform", () => {
 
     // 別のIPでリクエスト → クリーンアップが実行される
     const response = await POST(
-      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "trigger-cleanup-ip" }) as any
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": "trigger-cleanup-ip" },
+      ) as any,
     );
 
     expect(response.status).toBe(200);
@@ -205,7 +234,10 @@ describe("POST /api/transform", () => {
     // cleanupIpのエントリが削除されたことを確認:
     // 同じ時刻で再度リクエストしても429にならない（エントリが消えている）
     const afterCleanup = await POST(
-      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }) as any
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": cleanupIp },
+      ) as any,
     );
     expect(afterCleanup.status).toBe(200);
 
@@ -243,12 +275,22 @@ describe("POST /api/transform", () => {
     const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(T);
 
     // リクエストでクリーンアップをトリガーし lastCleanup = T にリセット
-    await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "reset-" + Math.random() }) as any);
+    await POST(
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": "reset-" + Math.random() },
+      ) as any,
+    );
 
     // activeIp のエントリを T+2 で作成
     const activeIp = "active-keep-" + Math.random();
     dateNowSpy.mockReturnValue(T + 2);
-    await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": activeIp }) as any);
+    await POST(
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": activeIp },
+      ) as any,
+    );
     // requestLog[activeIp] = [T+2]
 
     // T + 60_001 でクリーンアップをトリガー
@@ -256,7 +298,10 @@ describe("POST /api/transform", () => {
     // activeIp: every(t => 60_001 - 2 >= 60_000) → 59_999 >= 60_000 → false → 保持! ✓
     dateNowSpy.mockReturnValue(T + 60_001);
     const response = await POST(
-      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "trigger-" + Math.random() }) as any
+      makeRequest(
+        { rejections: ["テスト"] },
+        { "x-forwarded-for": "trigger-" + Math.random() },
+      ) as any,
     );
     expect(response.status).toBe(200);
 
