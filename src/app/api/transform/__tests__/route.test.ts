@@ -169,4 +169,35 @@ describe("POST /api/transform", () => {
     expect(response.status).toBe(429);
     expect(data.error).toContain("リクエストが多すぎます");
   });
+
+  it("クリーンアップで古いエントリが削除される", async () => {
+    mockTransformRejections.mockResolvedValue([]);
+    const cleanupIp = "cleanup-test-ip-unique";
+
+    // まず通常のリクエストを送信してrequestLogにエントリを作成
+    await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }) as any);
+
+    // CLEANUP_INTERVAL_MS(60s)以上 + RATE_LIMIT_WINDOW_MS(60s)以上を
+    // 未来に進めてクリーンアップをトリガー
+    // lastCleanupはモジュールロード時のDate.now()なので、
+    // 現在時刻+120s以上にする
+    const futureTime = Date.now() + 200_000;
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(futureTime);
+
+    // 別のIPでリクエスト → クリーンアップが実行される
+    const response = await POST(
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "trigger-cleanup-ip" }) as any
+    );
+
+    expect(response.status).toBe(200);
+
+    // cleanupIpのエントリが削除されたことを確認:
+    // 同じ時刻で再度リクエストしても429にならない（エントリが消えている）
+    const afterCleanup = await POST(
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }) as any
+    );
+    expect(afterCleanup.status).toBe(200);
+
+    dateNowSpy.mockRestore();
+  });
 });

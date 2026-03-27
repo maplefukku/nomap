@@ -157,4 +157,29 @@ describe("transformRejections", () => {
     const results = await transformRejections(["残業する"], "test-key");
     expect(results[0].esPhrase).toBeUndefined();
   });
+
+  it("フィールドが空文字・未定義の場合にデフォルト値が使われる", async () => {
+    const mockResponse = [
+      {
+        // avoidPattern, direction, firstAction が未定義
+        values: "自律性・成長",
+        esPhrase: "フレーズ",
+      },
+    ];
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
+      }),
+    });
+
+    const results = await transformRejections(["テスト"], "test-key");
+
+    expect(results[0].avoidPattern).toBe("");
+    expect(results[0].direction).toBe("");
+    expect(results[0].firstAction).toBe("");
+    expect(results[0].values).toBe("自律性・成長");
+    expect(results[0].esPhrase).toBe("フレーズ");
+  });
 });
