@@ -1,5 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import { transformRejections } from "@/lib/ai/transform";
+import {
+  MAX_REJECTIONS,
+  MAX_REJECTION_LENGTH,
+  RATE_LIMIT_WINDOW_MS,
+  RATE_LIMIT_MAX_REQUESTS,
+} from "@/lib/constants";
+
+// Simple in-memory rate limiter (per IP)
+const requestLog = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = requestLog.get(ip) ?? [];
+  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+
+  recent.push(now);
+  requestLog.set(ip, recent);
+  return false;
+}
+
+function sanitizeRejections(
+  raw: unknown
+): { rejections: string[] } | { error: string } {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return { error: "拒否リストが空です" };
+  }
+
+  if (raw.length > MAX_REJECTIONS) {
+    return { error: `拒否項目は最大${MAX_REJECTIONS}個までです` };
+  }
+
+  const rejections: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string") {
+      return { error: "拒否項目は文字列で指定してください" };
+    }
+    const trimmed = item.trim();
+    if (trimmed.length === 0) continue;
+    if (trimmed.length > MAX_REJECTION_LENGTH) {
+      return {
+        error: `各項目は${MAX_REJECTION_LENGTH}文字以内で入力してください`,
+      };
+    }
+    rejections.push(trimmed);
+  }
+
+  if (rejections.length === 0) {
+    return { error: "拒否リストが空です" };
+  }
+
+  return { rejections };
+}
 
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GLM_API_KEY;
@@ -8,6 +64,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "GLM API key not configured" },
       { status: 500 }
+    );
+  }
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "リクエストが多すぎます。しばらく待ってからお試しください" },
+      { status: 429 }
     );
   }
 
@@ -21,17 +85,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { rejections } = body as { rejections?: unknown };
+  const { rejections: rawRejections } = body as { rejections?: unknown };
+  const validated = sanitizeRejections(rawRejections);
 
-  if (!Array.isArray(rejections) || rejections.length === 0) {
-    return NextResponse.json(
-      { error: "拒否リストが空です" },
-      { status: 400 }
-    );
+  if ("error" in validated) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
   }
 
   try {
-    const results = await transformRejections(rejections, apiKey);
+    const results = await transformRejections(validated.rejections, apiKey);
     return NextResponse.json({ results });
   } catch (err) {
     const message =
