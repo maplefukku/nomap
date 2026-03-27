@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { RejectionInput } from "../rejection-input";
 
@@ -166,6 +166,20 @@ describe("RejectionInput", () => {
   it("shows loading state", () => {
     render(<RejectionInput onSubmit={vi.fn()} isLoading />);
     expect(screen.getByText("分析中...")).toBeInTheDocument();
+  });
+
+  it("handleSubmitはアイテムが0件の場合onSubmitを呼ばない", () => {
+    const onSubmit = vi.fn();
+    render(<RejectionInput onSubmit={onSubmit} />);
+
+    const submitBtn = screen.getByLabelText("方向を見つける") as HTMLButtonElement;
+
+    // React内部のpropsからonClickハンドラを直接取得して呼び出す
+    const propsKey = Object.keys(submitBtn).find((k) => k.startsWith("__reactProps$"));
+    const props = (submitBtn as unknown as Record<string, Record<string, () => void>>)[propsKey!];
+    props.onClick();
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it("changes placeholder after adding items", async () => {

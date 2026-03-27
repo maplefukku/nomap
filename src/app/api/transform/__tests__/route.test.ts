@@ -237,24 +237,26 @@ describe("POST /api/transform", () => {
 
   it("クリーンアップでアクティブなエントリは保持される", async () => {
     mockTransformRejections.mockResolvedValue([]);
-    const activeIp = "active-entry-ip";
 
-    // リクエストを送信してエントリを作成
+    // 十分大きな値で lastCleanup をリセットする
+    const T = Date.now() + 1_000_000;
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(T);
+
+    // リクエストでクリーンアップをトリガーし lastCleanup = T にリセット
+    await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "reset-" + Math.random() }) as any);
+
+    // activeIp のエントリを T+2 で作成
+    const activeIp = "active-keep-" + Math.random();
+    dateNowSpy.mockReturnValue(T + 2);
     await POST(makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": activeIp }) as any);
+    // requestLog[activeIp] = [T+2]
 
-    // CLEANUP_INTERVAL以上だがRATE_LIMIT_WINDOW内の時間に進める
-    // エントリはまだアクティブなので削除されない
-    const futureTime = Date.now() + 65_000;
-    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(futureTime);
-
-    // 別IPでリクエスト → クリーンアップがトリガーされるが、activeIpのエントリは保持される
-    await POST(
-      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "trigger-ip-2" }) as any
-    );
-
-    // activeIpでさらにリクエストを送信 → エントリが保持されているのでカウントが増える
+    // T + 60_001 でクリーンアップをトリガー
+    // now - lastCleanup(T) = 60_001 > 60_000 → クリーンアップ発動
+    // activeIp: every(t => 60_001 - 2 >= 60_000) → 59_999 >= 60_000 → false → 保持! ✓
+    dateNowSpy.mockReturnValue(T + 60_001);
     const response = await POST(
-      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": activeIp }) as any
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": "trigger-" + Math.random() }) as any
     );
     expect(response.status).toBe(200);
 
