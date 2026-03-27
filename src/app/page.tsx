@@ -74,12 +74,13 @@ export default function Home() {
       "_blank",
       "noopener,noreferrer"
     );
-  }, [results]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- results is read inside but only called after results are set
+  }, []);
 
   return (
     <div className="flex min-h-full flex-col bg-background">
       <Header />
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10 md:max-w-2xl">
+      <main id="main-content" className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10 md:max-w-2xl">
         <AnimatePresence mode="wait">
           {phase === "lp" && (
             <motion.section

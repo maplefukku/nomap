@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { EASE_OUT_QUART } from "@/lib/constants";
+import { EASE_OUT_QUART, fadeInUp } from "@/lib/constants";
 
 export interface ResultData {
   avoidPattern: string;
@@ -17,17 +17,13 @@ interface ResultCardProps {
   index?: number;
 }
 
-const cardFadeInUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-};
+const { initial, animate } = fadeInUp(16);
 
 export const ResultCard = memo(function ResultCard({ result, index = 0 }: ResultCardProps) {
   return (
     <motion.div
-      variants={cardFadeInUp}
-      initial="initial"
-      animate="animate"
+      initial={initial}
+      animate={animate}
       transition={{ duration: 0.4, delay: index * 0.1, ease: EASE_OUT_QUART }}
       role="article"
       aria-label={`NoMap: ${result.direction}`}
@@ -72,5 +68,3 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
     </motion.div>
   );
 });
-
-export { ResultCard as NoMapCard };

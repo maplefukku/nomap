@@ -16,11 +16,13 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
 
   const addItem = useCallback(() => {
     const trimmed = inputValue.trim();
-    if (trimmed && !items.includes(trimmed)) {
-      setItems((prev) => [...prev, trimmed]);
-      setInputValue("");
-    }
-  }, [inputValue, items]);
+    if (!trimmed) return;
+    setItems((prev) => {
+      if (prev.includes(trimmed)) return prev;
+      return [...prev, trimmed];
+    });
+    setInputValue("");
+  }, [inputValue]);
 
   const removeItem = useCallback((index: number) => {
     setItems((prev) => prev.filter((_, i) => i !== index));
