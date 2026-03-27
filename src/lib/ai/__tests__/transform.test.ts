@@ -154,7 +154,7 @@ describe("transformRejections", () => {
 
   it("setTimeoutコールバックがcontroller.abortを呼び出す", async () => {
     let capturedCallback: (() => void) | undefined;
-    const originalSetTimeout = globalThis.setTimeout;
+    const _originalSetTimeout = globalThis.setTimeout;
     vi.spyOn(globalThis, "setTimeout").mockImplementation((cb: () => void) => {
       capturedCallback = cb;
       return 999 as unknown as ReturnType<typeof setTimeout>;
