@@ -45,7 +45,7 @@ describe("transformRejections", () => {
           "Content-Type": "application/json",
           Authorization: "Bearer test-key",
         },
-      })
+      }),
     );
 
     const body = JSON.parse(mockFetch.mock.calls[0][1].body);
@@ -86,9 +86,9 @@ describe("transformRejections", () => {
       status: 500,
     });
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("GLM APIエラー（ステータス: 500）");
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      "GLM APIエラー（ステータス: 500）",
+    );
   });
 
   it("throws on empty response", async () => {
@@ -99,9 +99,9 @@ describe("transformRejections", () => {
       }),
     });
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("GLM APIから空の応答が返されました");
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      "GLM APIから空の応答が返されました",
+    );
   });
 
   it("throws on invalid JSON in response", async () => {
@@ -113,43 +113,46 @@ describe("transformRejections", () => {
     });
 
     await expect(
-      transformRejections(["残業する"], "test-key")
+      transformRejections(["残業する"], "test-key"),
     ).rejects.toThrow();
   });
 
   it("タイムアウト時にエラーをスローする", async () => {
-    const abortError = new DOMException("The operation was aborted", "AbortError");
+    const abortError = new DOMException(
+      "The operation was aborted",
+      "AbortError",
+    );
     mockFetch.mockRejectedValueOnce(abortError);
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("GLM APIがタイムアウトしました");
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      "GLM APIがタイムアウトしました",
+    );
   });
 
   it("ネットワークエラー時にそのままスローする", async () => {
     mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("fetch failed");
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      "fetch failed",
+    );
   });
 
   it("DOMExceptionでもAbortError以外はそのままスローする", async () => {
     const nonAbortError = new DOMException("Some other error", "NetworkError");
     mockFetch.mockRejectedValueOnce(nonAbortError);
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow(nonAbortError);
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      nonAbortError,
+    );
   });
 
   it("一般的なErrorオブジェクトのcatchはそのままスローする", async () => {
     const genericError = new Error("connection refused");
     mockFetch.mockRejectedValueOnce(genericError);
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("connection refused");
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      "connection refused",
+    );
   });
 
   it("setTimeoutコールバックがcontroller.abortを呼び出す", async () => {
@@ -187,9 +190,9 @@ describe("transformRejections", () => {
       }),
     });
 
-    await expect(
-      transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("GLM APIの応答形式が不正です");
+    await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
+      "GLM APIの応答形式が不正です",
+    );
   });
 
   it("handles missing optional fields", async () => {
