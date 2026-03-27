@@ -107,10 +107,25 @@ export async function POST(request: NextRequest) {
 
   try {
     const results = await transformRejections(validated.rejections, apiKey);
-    return NextResponse.json({ results });
+    return NextResponse.json(
+      { results },
+      {
+        headers: {
+          "Cache-Control": "private, no-store",
+        },
+      },
+    );
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "変換処理に失敗しました";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return NextResponse.json(
+      { error: message },
+      {
+        status: 502,
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
+    );
   }
 }

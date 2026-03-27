@@ -1,15 +1,27 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { Share2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { RejectionInput } from "@/components/rejection-input";
-import { ResultCard, type ResultData } from "@/components/result-card";
-import { ActionCard } from "@/components/action-card";
-import { ESCopyCard } from "@/components/es-copy-card";
+import type { ResultData } from "@/components/result-card";
 import { EmptyState } from "@/components/empty-state";
 import { fade, fadeInUp, hoverTap } from "@/lib/constants";
+
+const ResultCard = dynamic(
+  () => import("@/components/result-card").then((m) => m.ResultCard),
+  { ssr: false },
+);
+const ActionCard = dynamic(
+  () => import("@/components/action-card").then((m) => m.ActionCard),
+  { ssr: false },
+);
+const ESCopyCard = dynamic(
+  () => import("@/components/es-copy-card").then((m) => m.ESCopyCard),
+  { ssr: false },
+);
 
 type Phase = "lp" | "input" | "loading" | "result";
 
