@@ -44,20 +44,84 @@
 
 ---
 
-## 開発
+## セットアップ
+
+### 必要要件
+
+- Node.js 20以上
+- npm
+
+### インストール
 
 ```bash
-# 依存インストール
+git clone https://github.com/your-org/nomap.git
+cd nomap
 npm install
-
-# 開発サーバー起動
-npm run dev
-
-# ビルド
-npm run build
-
-# テスト
-npx vitest
 ```
 
-環境変数として `GLM_API_KEY` の設定が必要です。
+### 環境変数
+
+`.env.local.example` をコピーして `.env.local` を作成し、値を設定してください。
+
+```bash
+cp .env.local.example .env.local
+```
+
+| 変数名 | 必須 | 説明 | デフォルト値 |
+|---|---|---|---|
+| `GLM_API_KEY` | ✅ | GLM APIの認証キー | — |
+| `GLM_BASE_URL` | — | GLM APIのベースURL | `https://api.z.ai/api/coding/paas/v4/` |
+| `GLM_MODEL` | — | 使用するGLMモデル | `glm-4.7` |
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | SupabaseプロジェクトのURL | — |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabaseの匿名キー | — |
+
+### 開発サーバー
+
+```bash
+npm run dev      # 開発サーバー起動 (http://localhost:3000)
+npm run build    # プロダクションビルド
+npm run lint     # ESLint実行
+npx vitest       # テスト実行
+```
+
+---
+
+## API仕様
+
+### POST `/api/transform`
+
+「やりたくないこと」のリストをAIで変換するエンドポイント。
+
+**リクエスト**
+
+```json
+{
+  "rejections": ["満員電車で通勤", "上司の顔色をうかがう", "毎日同じ作業の繰り返し"]
+}
+```
+
+| フィールド | 型 | 制約 |
+|---|---|---|
+| `rejections` | `string[]` | 1〜10個、各項目200文字以内 |
+
+**レスポンス（成功: 200）**
+
+```json
+{
+  "results": {
+    "avoidance_structure": "...",
+    "reverse_axis": "...",
+    "first_action": "...",
+    "es_copy": "..."
+  }
+}
+```
+
+**エラーレスポンス**
+
+| ステータス | 意味 |
+|---|---|
+| 400 | バリデーションエラー（空リスト、文字数超過など） |
+| 429 | レートリミット超過 |
+| 500 | APIキー未設定 |
+| 502 | GLM API呼び出し失敗 |
