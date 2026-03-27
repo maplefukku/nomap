@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, type KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { tagAnimation, hoverTap } from "@/lib/constants";
+import { MAX_REJECTION_LENGTH } from "@/lib/constants";
 
 interface RejectionInputProps {
   onSubmit: (rejections: string[]) => void;
@@ -12,13 +13,22 @@ interface RejectionInputProps {
 export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
   const [items, setItems] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [hint, setHint] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addItem = useCallback(() => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
+    if (trimmed.length > MAX_REJECTION_LENGTH) {
+      setHint(`${MAX_REJECTION_LENGTH}文字以内で入力してください`);
+      return;
+    }
     setItems((prev) => {
-      if (prev.includes(trimmed)) return prev;
+      if (prev.includes(trimmed)) {
+        setHint("すでに追加されています");
+        return prev;
+      }
+      setHint(null);
       return [...prev, trimmed];
     });
     setInputValue("");
@@ -80,8 +90,19 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
                 className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                 aria-label={`「${item}」を削除`}
               >
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-                  <path d="M1 1l6 6M7 1L1 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <svg
+                  width="8"
+                  height="8"
+                  viewBox="0 0 8 8"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M1 1l6 6M7 1L1 7"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </button>
             </motion.span>
@@ -91,18 +112,37 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
           ref={inputRef}
           type="text"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            if (hint) setHint(null);
+          }}
           onKeyDown={handleKeyDown}
-          placeholder={items.length === 0 ? "例：満員電車で通勤する" : "さらに追加..."}
-          className="min-w-[180px] flex-1 bg-transparent py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus-visible:outline-none"
+          placeholder={
+            items.length === 0 ? "例：満員電車で通勤する" : "さらに追加..."
+          }
+          maxLength={MAX_REJECTION_LENGTH}
+          className="min-w-[120px] flex-1 bg-transparent py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus-visible:outline-none sm:min-w-[180px]"
           disabled={isLoading}
           aria-label="拒否項目を入力"
+          aria-describedby={hint ? "input-hint" : undefined}
         />
       </div>
 
+      {hint && (
+        <p id="input-hint" className="text-xs text-destructive" role="alert">
+          {hint}
+        </p>
+      )}
+
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground" aria-live="polite" aria-atomic="true">
-          {items.length > 0 ? `${items.length}件の拒否` : "Enterで追加"}
+        <span
+          className="text-xs text-muted-foreground"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {items.length > 0
+            ? `${items.length}件の拒否`
+            : "Enterで追加、Backspaceで削除"}
         </span>
         <motion.button
           {...hoverTap}

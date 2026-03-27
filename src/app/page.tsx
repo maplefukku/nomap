@@ -8,20 +8,24 @@ import { Header } from "@/components/header";
 import { RejectionInput } from "@/components/rejection-input";
 import type { ResultData } from "@/components/result-card";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { CardSkeleton } from "@/components/card-skeleton";
 import { fade, fadeInUp, hoverTap } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 
+const LoadingFallback = () => <CardSkeleton />;
+
 const ResultCard = dynamic(
   () => import("@/components/result-card").then((m) => m.ResultCard),
-  { ssr: false },
+  { ssr: false, loading: LoadingFallback },
 );
 const ActionCard = dynamic(
   () => import("@/components/action-card").then((m) => m.ActionCard),
-  { ssr: false },
+  { ssr: false, loading: LoadingFallback },
 );
 const ESCopyCard = dynamic(
   () => import("@/components/es-copy-card").then((m) => m.ESCopyCard),
-  { ssr: false },
+  { ssr: false, loading: LoadingFallback },
 );
 
 type Phase = "lp" | "input" | "loading" | "result";
@@ -210,13 +214,20 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4" aria-live="polite">
                 {results.map((result, i) => (
-                  <div key={i} className="flex flex-col gap-4">
-                    <ResultCard result={result} index={i} />
-                    <ActionCard action={result.firstAction} />
-                    {result.esPhrase && <ESCopyCard phrase={result.esPhrase} />}
-                  </div>
+                  <ErrorBoundary
+                    key={i}
+                    fallbackMessage="結果の表示中にエラーが発生しました"
+                  >
+                    <div className="flex flex-col gap-4">
+                      <ResultCard result={result} index={i} />
+                      <ActionCard action={result.firstAction} />
+                      {result.esPhrase && (
+                        <ESCopyCard phrase={result.esPhrase} />
+                      )}
+                    </div>
+                  </ErrorBoundary>
                 ))}
               </div>
             </motion.div>
@@ -244,6 +255,11 @@ export default function Home() {
           )}
         </AnimatePresence>
       </main>
+
+      <div className="sr-only" aria-live="assertive" aria-atomic="true">
+        {phase === "loading" && "分析中です。しばらくお待ちください。"}
+        {phase === "result" && `${results.length}件の結果が表示されました。`}
+      </div>
 
       <footer className="border-t border-border/50 py-6">
         <div className="mx-auto max-w-lg px-6 md:max-w-2xl">

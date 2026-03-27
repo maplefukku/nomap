@@ -55,17 +55,15 @@ describe("RejectionInput", () => {
   it("renders with placeholder text", () => {
     render(<RejectionInput onSubmit={vi.fn()} />);
     expect(
-      screen.getByPlaceholderText("例：満員電車で通勤する")
+      screen.getByPlaceholderText("例：満員電車で通勤する"),
     ).toBeInTheDocument();
   });
 
   it("renders heading and description", () => {
     render(<RejectionInput onSubmit={vi.fn()} />);
+    expect(screen.getByText("やりたくないことを教えて")).toBeInTheDocument();
     expect(
-      screen.getByText("やりたくないことを教えて")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/「やりたくないこと」を入力してEnterで追加/)
+      screen.getByText(/「やりたくないこと」を入力してEnterで追加/),
     ).toBeInTheDocument();
   });
 
@@ -99,7 +97,9 @@ describe("RejectionInput", () => {
     const input = screen.getByLabelText("拒否項目を入力");
     await user.type(input, "   {Enter}");
 
-    expect(screen.getByText("Enterで追加")).toBeInTheDocument();
+    expect(
+      screen.getByText("Enterで追加、Backspaceで削除"),
+    ).toBeInTheDocument();
   });
 
   it("removes an item when delete button is clicked", async () => {
@@ -172,11 +172,17 @@ describe("RejectionInput", () => {
     const onSubmit = vi.fn();
     render(<RejectionInput onSubmit={onSubmit} />);
 
-    const submitBtn = screen.getByLabelText("方向を見つける") as HTMLButtonElement;
+    const submitBtn = screen.getByLabelText(
+      "方向を見つける",
+    ) as HTMLButtonElement;
 
     // React内部のpropsからonClickハンドラを直接取得して呼び出す
-    const propsKey = Object.keys(submitBtn).find((k) => k.startsWith("__reactProps$"));
-    const props = (submitBtn as unknown as Record<string, Record<string, () => void>>)[propsKey!];
+    const propsKey = Object.keys(submitBtn).find((k) =>
+      k.startsWith("__reactProps$"),
+    );
+    const props = (
+      submitBtn as unknown as Record<string, Record<string, () => void>>
+    )[propsKey!];
     props.onClick();
 
     expect(onSubmit).not.toHaveBeenCalled();
