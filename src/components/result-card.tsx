@@ -29,13 +29,15 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
       initial="initial"
       animate="animate"
       transition={{ duration: 0.4, delay: index * 0.1, ease: EASE_OUT_QUART }}
+      role="article"
+      aria-label={`NoMap: ${result.direction}`}
       className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
     >
-      <h2 className="text-xl font-bold tracking-tight text-foreground">
+      <h3 className="text-xl font-bold tracking-tight text-foreground">
         あなたのNoMap
-      </h2>
+      </h3>
 
-      <div className="h-px bg-border" />
+      <div className="h-px bg-border" aria-hidden="true" />
 
       <div className="flex flex-col gap-1.5">
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -44,7 +46,7 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
         <p className="text-sm leading-relaxed text-foreground/80">{result.avoidPattern}</p>
       </div>
 
-      <div className="h-px bg-border" />
+      <div className="h-px bg-border" aria-hidden="true" />
 
       <div className="flex flex-col gap-1.5">
         <span className="text-xs font-medium uppercase tracking-wider text-accent">
@@ -57,7 +59,7 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
 
       {result.values && (
         <>
-          <div className="h-px bg-border" />
+          <div className="h-px bg-border" aria-hidden="true" />
 
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

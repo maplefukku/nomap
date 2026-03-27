@@ -94,23 +94,23 @@ export default function Home() {
               </motion.button>
 
               <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md">
-                  <span className="text-2xl">🎯</span>
-                  <h3 className="mt-2 font-semibold">5分で完了</h3>
+                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md" role="group" aria-label="5分で完了">
+                  <span className="text-2xl" aria-hidden="true">🎯</span>
+                  <h2 className="mt-2 font-semibold">5分で完了</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     就活で話せる「軸」ができる
                   </p>
                 </div>
-                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md">
-                  <span className="text-2xl">💡</span>
-                  <h3 className="mt-2 font-semibold">ESに使える</h3>
+                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md" role="group" aria-label="ESに使える">
+                  <span className="text-2xl" aria-hidden="true">💡</span>
+                  <h2 className="mt-2 font-semibold">ESに使える</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     「嫌なこと」が「軸」に変わる
                   </p>
                 </div>
-                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md">
-                  <span className="text-2xl">📱</span>
-                  <h3 className="mt-2 font-semibold">シェア可能</h3>
+                <div className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md" role="group" aria-label="シェア可能">
+                  <span className="text-2xl" aria-hidden="true">📱</span>
+                  <h2 className="mt-2 font-semibold">シェア可能</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     「私のNoMap」を画像で共有
                   </p>

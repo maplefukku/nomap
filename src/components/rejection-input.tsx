@@ -99,7 +99,7 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground" aria-live="polite" aria-atomic="true">
           {items.length > 0 ? `${items.length}件の拒否` : "Enterで追加"}
         </span>
         <motion.button
@@ -107,6 +107,8 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
           onClick={handleSubmit}
           disabled={items.length === 0 || isLoading}
           type="button"
+          aria-label={isLoading ? "分析中" : "方向を見つける"}
+          aria-busy={isLoading}
           className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           {isLoading ? (
@@ -115,6 +117,7 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 className="inline-block h-4 w-4 rounded-full border-2 border-current border-t-transparent"
+                aria-hidden="true"
               />
               分析中...
             </>
