@@ -269,8 +269,90 @@ describe("Home (page.tsx)", () => {
     expect(screen.getByTestId("rejection-input")).toBeInTheDocument();
   });
 
+  it("シェアボタンでTwitter共有URLを開く", async () => {
+    const mockOpen = vi.fn();
+    window.open = mockOpen;
+
+    const mockResults = [
+      {
+        avoidPattern: "パターン",
+        direction: "自由な働き方",
+        values: "自律性",
+        firstAction: "リモート求人を探す",
+        esPhrase: "自律的な環境",
+      },
+    ];
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ results: mockResults }),
+    });
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    await waitFor(() => {
+      expect(screen.getByText(messages.result.heading)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByLabelText(messages.result.share));
+
+    const expectedText = encodeURIComponent(
+      `私のNoMap: 自由な働き方 - リモート求人を探す #NoMap`,
+    );
+    expect(mockOpen).toHaveBeenCalledWith(
+      `https://twitter.com/intent/tweet?text=${expectedText}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  });
+
+  it("resultsが空の場合シェアボタンで何も開かない", async () => {
+    const mockOpen = vi.fn();
+    window.open = mockOpen;
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ results: [] }),
+    });
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(messages.result.share)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByLabelText(messages.result.share));
+
+    expect(mockOpen).not.toHaveBeenCalled();
+  });
+
+  it("resultsが配列でない場合エラーを表示する", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ results: "not-an-array" }),
+    });
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        messages.client.invalidResponse,
+      );
+    });
+  });
+
   it("shows network error when fetch rejects with non-Error", async () => {
-     
     mockFetch.mockRejectedValueOnce("string error");
 
     const user = userEvent.setup();
