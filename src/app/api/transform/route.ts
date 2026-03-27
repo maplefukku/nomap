@@ -30,8 +30,11 @@ function isRateLimited(ip: string): boolean {
   // Periodically purge stale entries to prevent unbounded Map growth
   if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
     for (const [key, timestamps] of requestLog) {
-      if (timestamps.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) {
+      const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+      if (recent.length === 0) {
         requestLog.delete(key);
+      } else {
+        requestLog.set(key, recent);
       }
     }
     lastCleanup = now;

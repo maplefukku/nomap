@@ -64,6 +64,9 @@ export default function Home() {
         );
       }
 
+      if (!Array.isArray(data.results)) {
+        throw new Error(messages.client.invalidResponse);
+      }
       setResults(data.results as ResultData[]);
       setPhase("result");
     } catch (err) {
@@ -91,8 +94,7 @@ export default function Home() {
       "_blank",
       "noopener,noreferrer",
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- results is read inside but only called after results are set
-  }, []);
+  }, [results]);
 
   return (
     <div className="flex min-h-full flex-col bg-background">

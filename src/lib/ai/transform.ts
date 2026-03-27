@@ -117,11 +117,18 @@ export async function transformRejections(
     throw new Error(messages.api.invalidFormat);
   }
 
-  return parsed.map((item: Record<string, string>) => ({
-    avoidPattern: item.avoidPattern || "",
-    direction: item.direction || "",
-    values: item.values,
-    firstAction: item.firstAction || "",
-    esPhrase: item.esPhrase,
-  }));
+  return parsed.map((item: unknown) => {
+    const obj =
+      typeof item === "object" && item !== null
+        ? (item as Record<string, unknown>)
+        : {};
+    return {
+      avoidPattern:
+        typeof obj.avoidPattern === "string" ? obj.avoidPattern : "",
+      direction: typeof obj.direction === "string" ? obj.direction : "",
+      values: typeof obj.values === "string" ? obj.values : undefined,
+      firstAction: typeof obj.firstAction === "string" ? obj.firstAction : "",
+      esPhrase: typeof obj.esPhrase === "string" ? obj.esPhrase : undefined,
+    };
+  });
 }
