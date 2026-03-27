@@ -25,7 +25,12 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Auth fetch failure should not block the request –
+    // the user will simply be treated as unauthenticated.
+  }
 
   return supabaseResponse;
 }

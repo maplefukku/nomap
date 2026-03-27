@@ -80,14 +80,14 @@ export async function transformRejections(
   }
 
   if (!response.ok) {
-    throw new Error(`GLM API error: ${response.status}`);
+    throw new Error(`GLM APIエラー（ステータス: ${response.status}）`);
   }
 
   const data: GLMResponse = await response.json();
   const content = data.choices[0]?.message?.content;
 
   if (!content) {
-    throw new Error("Empty response from GLM API");
+    throw new Error("GLM APIから空の応答が返されました");
   }
 
   const jsonStr = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
@@ -100,7 +100,7 @@ export async function transformRejections(
   }
 
   if (!Array.isArray(parsed)) {
-    throw new Error("Invalid response format");
+    throw new Error("GLM APIの応答形式が不正です");
   }
 
   return parsed.map((item: Record<string, string>) => ({

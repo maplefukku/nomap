@@ -73,7 +73,7 @@ describe("POST /api/transform", () => {
     const data = await response.json();
 
     expect(response.status).toBe(500);
-    expect(data.error).toBe("GLM API key not configured");
+    expect(data.error).toBe("GLM APIキーが設定されていません");
   });
 
   it("returns 400 for invalid JSON", async () => {

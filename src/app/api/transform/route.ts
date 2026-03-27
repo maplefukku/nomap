@@ -9,9 +9,22 @@ import {
 
 // Simple in-memory rate limiter (per IP)
 const requestLog = new Map<string, number[]>();
+let lastCleanup = Date.now();
+const CLEANUP_INTERVAL_MS = 60_000;
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+
+  // Periodically purge stale entries to prevent unbounded Map growth
+  if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
+    for (const [key, timestamps] of requestLog) {
+      if (timestamps.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) {
+        requestLog.delete(key);
+      }
+    }
+    lastCleanup = now;
+  }
+
   const timestamps = requestLog.get(ip) ?? [];
   const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
 
@@ -62,7 +75,7 @@ export async function POST(request: NextRequest) {
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: "GLM API key not configured" },
+      { error: "GLM APIキーが設定されていません" },
       { status: 500 }
     );
   }

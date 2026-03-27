@@ -79,7 +79,7 @@ describe("transformRejections", () => {
 
     await expect(
       transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("GLM API error: 500");
+    ).rejects.toThrow("GLM APIエラー（ステータス: 500）");
   });
 
   it("throws on empty response", async () => {
@@ -92,7 +92,7 @@ describe("transformRejections", () => {
 
     await expect(
       transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("Empty response from GLM API");
+    ).rejects.toThrow("GLM APIから空の応答が返されました");
   });
 
   it("throws on invalid JSON in response", async () => {
@@ -135,7 +135,7 @@ describe("transformRejections", () => {
 
     await expect(
       transformRejections(["残業する"], "test-key")
-    ).rejects.toThrow("Invalid response format");
+    ).rejects.toThrow("GLM APIの応答形式が不正です");
   });
 
   it("handles missing optional fields", async () => {
