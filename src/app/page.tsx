@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { Share2 } from "lucide-react";
+import { Share2, RotateCcw } from "lucide-react";
 import { Header } from "@/components/header";
 import { RejectionInput } from "@/components/rejection-input";
 import { EmptyState } from "@/components/empty-state";
@@ -52,6 +52,7 @@ export default function Home() {
     error,
     setPhase,
     handleSubmit,
+    handleRetry,
     handleReset,
     handleShare,
   } = useTransformApi();
@@ -109,7 +110,7 @@ export default function Home() {
 
           {phase === "result" ? (
             <motion.div key="results" {...fade} className="flex flex-col gap-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-2xl font-semibold tracking-tight text-foreground">
                     {messages.result.heading}
@@ -169,10 +170,18 @@ export default function Home() {
                 {error && (
                   <motion.div
                     {...animations.errorInline}
-                    className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3"
                     role="alert"
                   >
-                    {error}
+                    <p className="text-sm text-destructive">{error}</p>
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                      {messages.client.retry}
+                    </button>
                   </motion.div>
                 )}
 

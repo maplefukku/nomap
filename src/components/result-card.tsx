@@ -43,7 +43,7 @@ export const ResultCard = memo(function ResultCard({
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {messages.resultCard.avoidPattern}
         </span>
-        <p className="text-sm leading-relaxed text-foreground/80">
+        <p className="break-words text-sm leading-relaxed text-foreground/80">
           {result.avoidPattern}
         </p>
       </div>
@@ -54,7 +54,7 @@ export const ResultCard = memo(function ResultCard({
         <span className="text-xs font-medium uppercase tracking-wider text-accent">
           {messages.resultCard.direction}
         </span>
-        <p className="text-lg font-semibold leading-snug tracking-tight text-foreground">
+        <p className="break-words text-lg font-semibold leading-snug tracking-tight text-foreground">
           {result.direction}
         </p>
       </div>

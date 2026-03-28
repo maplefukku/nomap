@@ -90,7 +90,7 @@ export const RejectionInput = memo(function RejectionInput({
                   e.stopPropagation();
                   removeItem(index);
                 }}
-                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                className="ml-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                 aria-label={messages.input.removeItem(item)}
               >
                 <svg
@@ -129,6 +129,7 @@ export const RejectionInput = memo(function RejectionInput({
           className="min-w-[120px] flex-1 bg-transparent py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus-visible:outline-none sm:min-w-[180px]"
           disabled={isLoading}
           aria-label={messages.input.inputLabel}
+          aria-invalid={hint ? "true" : undefined}
           aria-describedby={hint ? "input-hint" : undefined}
         />
       </div>

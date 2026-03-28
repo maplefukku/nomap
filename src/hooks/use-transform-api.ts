@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import type { ResultData } from "@/components/result-card";
 import { messages } from "@/lib/i18n";
 
@@ -11,6 +12,7 @@ export function useTransformApi() {
   const [results, setResults] = useState<ResultData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastRejectionsRef = useRef<string[]>([]);
 
   useEffect(() => {
     return () => {
@@ -23,6 +25,7 @@ export function useTransformApi() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    lastRejectionsRef.current = rejections;
     setPhase("loading");
     setError(null);
 
@@ -68,6 +71,12 @@ export function useTransformApi() {
     }
   }, []);
 
+  const handleRetry = useCallback(() => {
+    if (lastRejectionsRef.current.length > 0) {
+      handleSubmit(lastRejectionsRef.current);
+    }
+  }, [handleSubmit]);
+
   const handleReset = useCallback(() => {
     setResults([]);
     setPhase("input");
@@ -80,11 +89,14 @@ export function useTransformApi() {
     const text = encodeURIComponent(
       messages.share.tweet(first.direction, first.firstAction),
     );
-    window.open(
+    const win = window.open(
       `https://twitter.com/intent/tweet?text=${text}`,
       "_blank",
       "noopener,noreferrer",
     );
+    if (!win) {
+      toast.error(messages.client.sharePopupBlocked);
+    }
   }, [results]);
 
   return {
@@ -93,6 +105,7 @@ export function useTransformApi() {
     error,
     setPhase,
     handleSubmit,
+    handleRetry,
     handleReset,
     handleShare,
   } as const;
