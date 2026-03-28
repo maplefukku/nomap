@@ -8,6 +8,11 @@ vi.mock("@/lib/env", () => ({
   },
 }));
 
+vi.mock("@/lib/constants.server", async (importOriginal) => {
+  const orig = await importOriginal<Record<string, unknown>>();
+  return { ...orig, GLM_RETRY_COUNT: 1, GLM_RETRY_DELAY_MS: 0 };
+});
+
 import { transformRejections } from "../transform";
 
 const mockFetch = vi.fn();
@@ -121,24 +126,49 @@ describe("transformRejections", () => {
     ).rejects.toThrow();
   });
 
-  it("タイムアウト時にエラーをスローする", async () => {
+  it("タイムアウト時にリトライ後もエラーならスローする", async () => {
     const abortError = new DOMException(
       "The operation was aborted",
       "AbortError",
     );
-    mockFetch.mockRejectedValueOnce(abortError);
+    // 初回 + リトライ1回 = 計2回失敗
+    mockFetch
+      .mockRejectedValueOnce(abortError)
+      .mockRejectedValueOnce(abortError);
 
     await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
       "GLM APIがタイムアウトしました",
     );
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
-  it("ネットワークエラー時にそのままスローする", async () => {
-    mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
+  it("ネットワークエラー時にリトライ後も失敗ならスローする", async () => {
+    mockFetch
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockRejectedValueOnce(new TypeError("fetch failed"));
 
     await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
       "fetch failed",
     );
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("一時的エラー後のリトライで成功する", async () => {
+    const mockResponse = [
+      { avoidPattern: "p", direction: "d", firstAction: "a" },
+    ];
+    mockFetch
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: JSON.stringify(mockResponse) } }],
+        }),
+      });
+
+    const results = await transformRejections(["残業する"], "test-key");
+    expect(results).toHaveLength(1);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it("DOMExceptionでもAbortError以外はそのままスローする", async () => {

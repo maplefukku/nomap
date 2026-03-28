@@ -13,14 +13,20 @@ interface ClientEnv {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: string | undefined;
 }
 
+/** 本番環境で未設定の環境変数を検出し、警告済みキーは重複ログを抑制する */
+const warnedKeys = new Set<string>();
+
 function requiredInProduction(
   value: string | undefined,
   name: string,
 ): string | undefined {
-  if (!value && process.env.NODE_ENV === "production") {
-    console.warn(
-      `⚠ 環境変数 ${name} が未設定です。本番環境では機能が正常に動作しない可能性があります`,
-    );
+  if (
+    !value &&
+    process.env.NODE_ENV === "production" &&
+    !warnedKeys.has(name)
+  ) {
+    warnedKeys.add(name);
+    console.warn(`[env] missing required variable: ${name}`);
   }
   return value;
 }

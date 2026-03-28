@@ -67,7 +67,20 @@ export function useTransformApi() {
         );
       }
 
-      if (!Array.isArray(data.results)) {
+      if (!Array.isArray(data.results) || data.results.length === 0) {
+        throw new Error(messages.client.invalidResponse);
+      }
+      // サーバー側でもバリデーション済みだが、予期しない形式のデータが
+      // UIコンポーネントに渡りクラッシュしないよう二重チェックする
+      const hasRequiredFields = data.results.every(
+        (r) =>
+          typeof r === "object" &&
+          r !== null &&
+          typeof r.avoidPattern === "string" &&
+          typeof r.direction === "string" &&
+          typeof r.firstAction === "string",
+      );
+      if (!hasRequiredFields) {
         throw new Error(messages.client.invalidResponse);
       }
       setResults(data.results);

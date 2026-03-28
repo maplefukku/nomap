@@ -297,10 +297,7 @@ describe("Home (page.tsx)", () => {
     expect(toast.error).toHaveBeenCalledWith(messages.client.sharePopupBlocked);
   });
 
-  it("resultsが空の場合シェアボタンで何も開かない", async () => {
-    const mockOpen = vi.fn();
-    window.open = mockOpen;
-
+  it("resultsが空の場合はバリデーションエラーとして入力画面に戻る", async () => {
     mockFetch.mockResolvedValueOnce(buildClientAPIResponse([]));
 
     const user = userEvent.setup();
@@ -310,12 +307,8 @@ describe("Home (page.tsx)", () => {
     await user.click(screen.getByTestId("submit-btn"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText(messages.result.share)).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toBeInTheDocument();
     });
-
-    await user.click(screen.getByLabelText(messages.result.share));
-
-    expect(mockOpen).not.toHaveBeenCalled();
   });
 
   it("非Errorオブジェクトがスローされた場合unexpectedErrorを表示する", async () => {

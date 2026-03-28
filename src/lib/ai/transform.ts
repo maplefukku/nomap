@@ -3,6 +3,8 @@ import {
   GLM_API_TIMEOUT_MS,
   GLM_MAX_TOKENS,
   GLM_TEMPERATURE,
+  GLM_RETRY_COUNT,
+  GLM_RETRY_DELAY_MS,
 } from "@/lib/constants.server";
 import { serverEnv } from "@/lib/env";
 import { messages } from "@/lib/i18n";
@@ -139,6 +141,13 @@ function parseResultsFromContent(content: string): ResultData[] {
  * @returns 分析結果の配列（1〜3件）
  * @throws タイムアウト、APIエラー、パース失敗時にErrorをスロー
  */
+/** 一時的なネットワークエラーかどうかを判定する */
+function isTransientError(err: unknown): boolean {
+  if (err instanceof TypeError) return true; // fetch network failure
+  if (err instanceof Error && err.message === messages.api.timeout) return true;
+  return false;
+}
+
 export async function transformRejections(
   rejections: string[],
   apiKey: string,
@@ -151,19 +160,30 @@ export async function transformRejections(
     },
   ];
 
-  const response = await fetchGLMCompletion(chatMessages, apiKey);
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= GLM_RETRY_COUNT; attempt++) {
+    try {
+      const response = await fetchGLMCompletion(chatMessages, apiKey);
 
-  if (!response.ok) {
-    throw new Error(messages.api.statusError(response.status));
+      if (!response.ok) {
+        throw new Error(messages.api.statusError(response.status));
+      }
+
+      let data: GLMResponse;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(messages.api.parseFailed);
+      }
+
+      const content = extractContent(data);
+      return parseResultsFromContent(content);
+    } catch (err) {
+      lastError = err;
+      const canRetry = attempt < GLM_RETRY_COUNT && isTransientError(err);
+      if (!canRetry) throw err;
+      await new Promise((r) => setTimeout(r, GLM_RETRY_DELAY_MS));
+    }
   }
-
-  let data: GLMResponse;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error(messages.api.parseFailed);
-  }
-
-  const content = extractContent(data);
-  return parseResultsFromContent(content);
+  throw lastError;
 }

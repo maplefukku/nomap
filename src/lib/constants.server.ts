@@ -26,6 +26,8 @@ function envFloat(key: string, fallback: number): number {
 export const GLM_API_TIMEOUT_MS = envInt("GLM_API_TIMEOUT_MS", 30_000);
 export const GLM_MAX_TOKENS = envInt("GLM_MAX_TOKENS", 2000);
 export const GLM_TEMPERATURE = envFloat("GLM_TEMPERATURE", 0.7);
+export const GLM_RETRY_COUNT = envInt("GLM_RETRY_COUNT", 1);
+export const GLM_RETRY_DELAY_MS = envInt("GLM_RETRY_DELAY_MS", 1000);
 
 // ---------------------------------------------------------------------------
 // Input validation limits
