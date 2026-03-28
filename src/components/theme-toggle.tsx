@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState, memo, useCallback } from "react";
+import { useEffect, useState, memo } from "react";
 import { motion } from "framer-motion";
 
 const tapAnimation = { scale: 0.92 } as const;
