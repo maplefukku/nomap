@@ -53,24 +53,16 @@ const SYSTEM_PROMPT = `あなたはキャリア・ライフコーチです。ユ
  * @returns 分析結果の配列（1〜3件）
  * @throws タイムアウト、APIエラー、パース失敗時にErrorをスロー
  */
-export async function transformRejections(
-  rejections: string[],
+/** GLM APIにチャットリクエストを送信し、レスポンスを返す */
+async function fetchGLMCompletion(
+  chatMessages: ChatMessage[],
   apiKey: string,
-): Promise<ResultData[]> {
-  const chatMessages: ChatMessage[] = [
-    { role: "system", content: SYSTEM_PROMPT },
-    {
-      role: "user",
-      content: `やりたくないことリスト:\n${rejections.map((r) => `- ${r}`).join("\n")}`,
-    },
-  ];
-
+): Promise<Response> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GLM_API_TIMEOUT_MS);
 
-  let response: Response;
   try {
-    response = await fetch(`${serverEnv.GLM_BASE_URL}chat/completions`, {
+    const response = await fetch(`${serverEnv.GLM_BASE_URL}chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,6 +76,7 @@ export async function transformRejections(
       }),
       signal: controller.signal,
     });
+    return response;
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
       throw new Error(messages.api.timeout);
@@ -92,24 +85,19 @@ export async function transformRejections(
   } finally {
     clearTimeout(timeout);
   }
+}
 
-  if (!response.ok) {
-    throw new Error(messages.api.statusError(response.status));
-  }
-
-  let data: GLMResponse;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error(messages.api.parseFailed);
-  }
-
-  const content = data.choices?.[0]?.message?.content;
-
+/** GLMレスポンスからコンテンツ文字列を抽出・検証する */
+function extractContent(response: GLMResponse): string {
+  const content = response.choices?.[0]?.message?.content;
   if (!content) {
     throw new Error(messages.api.emptyResponse);
   }
+  return content;
+}
 
+/** LLMが返したJSON文字列をResultData配列にパースし、必須フィールドで絞り込む */
+function parseResultsFromContent(content: string): ResultData[] {
   const jsonStr = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
 
   let parsed: unknown;
@@ -145,4 +133,45 @@ export async function transformRejections(
     throw new Error(messages.api.invalidFormat);
   }
   return valid;
+}
+
+/**
+ * 「やりたくないこと」リストをGLM APIで分析し、構造化された結果に変換する。
+ *
+ * GLM API (OpenAI互換) にシステムプロンプトとユーザー入力を送信し、
+ * 回避パターン・進むべき方向・価値観・最初のアクション・ES用フレーズを
+ * 含むJSON配列として応答を受け取る。
+ *
+ * @param rejections - ユーザーが入力した「やりたくないこと」の文字列配列
+ * @param apiKey - GLM APIの認証キー
+ * @returns 分析結果の配列（1〜3件）
+ * @throws タイムアウト、APIエラー、パース失敗時にErrorをスロー
+ */
+export async function transformRejections(
+  rejections: string[],
+  apiKey: string,
+): Promise<ResultData[]> {
+  const chatMessages: ChatMessage[] = [
+    { role: "system", content: SYSTEM_PROMPT },
+    {
+      role: "user",
+      content: `やりたくないことリスト:\n${rejections.map((r) => `- ${r}`).join("\n")}`,
+    },
+  ];
+
+  const response = await fetchGLMCompletion(chatMessages, apiKey);
+
+  if (!response.ok) {
+    throw new Error(messages.api.statusError(response.status));
+  }
+
+  let data: GLMResponse;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(messages.api.parseFailed);
+  }
+
+  const content = extractContent(data);
+  return parseResultsFromContent(content);
 }

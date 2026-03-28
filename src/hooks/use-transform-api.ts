@@ -7,6 +7,11 @@ import { messages } from "@/lib/i18n";
 
 type Phase = "lp" | "input" | "loading" | "result";
 
+interface TransformApiResponse {
+  results?: ResultData[];
+  error?: string;
+}
+
 export function useTransformApi() {
   const [phase, setPhase] = useState<Phase>("lp");
   const [results, setResults] = useState<ResultData[]>([]);
@@ -43,7 +48,7 @@ export function useTransformApi() {
         throw new Error(messages.client.networkError);
       }
 
-      let data: Record<string, unknown>;
+      let data: TransformApiResponse;
       try {
         data = await response.json();
       } catch {
@@ -61,7 +66,7 @@ export function useTransformApi() {
       if (!Array.isArray(data.results)) {
         throw new Error(messages.client.invalidResponse);
       }
-      setResults(data.results as ResultData[]);
+      setResults(data.results);
       setPhase("result");
     } catch (err) {
       setError(

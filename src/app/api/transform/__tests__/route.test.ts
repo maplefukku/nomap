@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest } from "next/server";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { POST } from "../route";
 import { MAX_REJECTIONS, MAX_REJECTION_LENGTH } from "@/lib/constants.server";
@@ -23,8 +23,11 @@ const mockTransformRejections = vi.mocked(
   (await import("@/lib/ai/transform")).transformRejections,
 );
 
-function makeRequest(body: unknown, headers?: Record<string, string>) {
-  return new Request("http://localhost/api/transform", {
+function makeRequest(
+  body: unknown,
+  headers?: Record<string, string>,
+): NextRequest {
+  return new NextRequest("http://localhost/api/transform", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -57,9 +60,7 @@ describe("POST /api/transform", () => {
 
     mockTransformRejections.mockResolvedValueOnce(mockResults);
 
-    const response = await POST(
-      makeRequest({ rejections: ["残業する"] }) as any,
-    );
+    const response = await POST(makeRequest({ rejections: ["残業する"] }));
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -68,7 +69,7 @@ describe("POST /api/transform", () => {
   });
 
   it("returns 400 for empty rejections array", async () => {
-    const response = await POST(makeRequest({ rejections: [] }) as any);
+    const response = await POST(makeRequest({ rejections: [] }));
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -76,7 +77,7 @@ describe("POST /api/transform", () => {
   });
 
   it("returns 400 for missing rejections", async () => {
-    const response = await POST(makeRequest({}) as any);
+    const response = await POST(makeRequest({}));
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -86,9 +87,7 @@ describe("POST /api/transform", () => {
   it("returns 503 when API key is not configured", async () => {
     delete process.env.GLM_API_KEY;
 
-    const response = await POST(
-      makeRequest({ rejections: ["残業する"] }) as any,
-    );
+    const response = await POST(makeRequest({ rejections: ["残業する"] }));
     const data = await response.json();
 
     expect(response.status).toBe(503);
@@ -96,7 +95,7 @@ describe("POST /api/transform", () => {
   });
 
   it("returns 400 for invalid JSON", async () => {
-    const request = new Request("http://localhost/api/transform", {
+    const request = new NextRequest("http://localhost/api/transform", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -105,7 +104,7 @@ describe("POST /api/transform", () => {
       body: "invalid json",
     });
 
-    const response = await POST(request as any);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -115,9 +114,7 @@ describe("POST /api/transform", () => {
   it("returns 502 when transformRejections throws an error", async () => {
     mockTransformRejections.mockRejectedValueOnce(new Error("API error"));
 
-    const response = await POST(
-      makeRequest({ rejections: ["残業する"] }) as any,
-    );
+    const response = await POST(makeRequest({ rejections: ["残業する"] }));
     const data = await response.json();
 
     expect(response.status).toBe(502);
@@ -129,9 +126,7 @@ describe("POST /api/transform", () => {
       new Error("GLM APIエラー（ステータス: 503）"),
     );
 
-    const response = await POST(
-      makeRequest({ rejections: ["残業する"] }) as any,
-    );
+    const response = await POST(makeRequest({ rejections: ["残業する"] }));
     const data = await response.json();
 
     expect(response.status).toBe(502);
@@ -142,7 +137,7 @@ describe("POST /api/transform", () => {
     process.env.GLM_API_KEY = "my-api-key";
     mockTransformRejections.mockResolvedValueOnce([]);
 
-    await POST(makeRequest({ rejections: ["残業する", "夜勤"] }) as any);
+    await POST(makeRequest({ rejections: ["残業する", "夜勤"] }));
 
     expect(mockTransformRejections).toHaveBeenCalledWith(
       ["残業する", "夜勤"],
@@ -151,9 +146,7 @@ describe("POST /api/transform", () => {
   });
 
   it("returns 400 when rejections contain non-string items", async () => {
-    const response = await POST(
-      makeRequest({ rejections: [123, true] }) as any,
-    );
+    const response = await POST(makeRequest({ rejections: [123, true] }));
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -166,7 +159,7 @@ describe("POST /api/transform", () => {
       (_, i) => `項目${i}`,
     );
 
-    const response = await POST(makeRequest({ rejections: tooMany }) as any);
+    const response = await POST(makeRequest({ rejections: tooMany }));
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -176,7 +169,7 @@ describe("POST /api/transform", () => {
   it("returns 400 when a rejection exceeds max length", async () => {
     const longItem = "あ".repeat(MAX_REJECTION_LENGTH + 1);
 
-    const response = await POST(makeRequest({ rejections: [longItem] }) as any);
+    const response = await POST(makeRequest({ rejections: [longItem] }));
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -184,9 +177,7 @@ describe("POST /api/transform", () => {
   });
 
   it("trims whitespace-only rejections and returns 400 if all empty", async () => {
-    const response = await POST(
-      makeRequest({ rejections: ["  ", "\t", ""] }) as any,
-    );
+    const response = await POST(makeRequest({ rejections: ["  ", "\t", ""] }));
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -203,16 +194,13 @@ describe("POST /api/transform", () => {
         makeRequest(
           { rejections: ["テスト"] },
           { "x-forwarded-for": sharedIp },
-        ) as any,
+        ),
       );
     }
 
     // Next request should be rate limited
     const response = await POST(
-      makeRequest(
-        { rejections: ["テスト"] },
-        { "x-forwarded-for": sharedIp },
-      ) as any,
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": sharedIp }),
     );
     const data = await response.json();
 
@@ -226,10 +214,7 @@ describe("POST /api/transform", () => {
 
     // まず通常のリクエストを送信してrequestLogにエントリを作成
     await POST(
-      makeRequest(
-        { rejections: ["テスト"] },
-        { "x-forwarded-for": cleanupIp },
-      ) as any,
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }),
     );
 
     // CLEANUP_INTERVAL_MS(60s)以上 + RATE_LIMIT_WINDOW_MS(60s)以上を
@@ -244,7 +229,7 @@ describe("POST /api/transform", () => {
       makeRequest(
         { rejections: ["テスト"] },
         { "x-forwarded-for": "trigger-cleanup-ip" },
-      ) as any,
+      ),
     );
 
     expect(response.status).toBe(200);
@@ -252,10 +237,7 @@ describe("POST /api/transform", () => {
     // cleanupIpのエントリが削除されたことを確認:
     // 同じ時刻で再度リクエストしても429にならない（エントリが消えている）
     const afterCleanup = await POST(
-      makeRequest(
-        { rejections: ["テスト"] },
-        { "x-forwarded-for": cleanupIp },
-      ) as any,
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": cleanupIp }),
     );
     expect(afterCleanup.status).toBe(200);
   });
@@ -263,20 +245,20 @@ describe("POST /api/transform", () => {
   it("uses 'unknown' as IP when x-forwarded-for header is missing", async () => {
     mockTransformRejections.mockResolvedValueOnce([]);
 
-    const request = new Request("http://localhost/api/transform", {
+    const request = new NextRequest("http://localhost/api/transform", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rejections: ["テスト"] }),
     });
 
-    const response = await POST(request as any);
+    const response = await POST(request);
     expect(response.status).toBe(200);
   });
 
   it("returns fallback message when non-Error is thrown", async () => {
     mockTransformRejections.mockRejectedValueOnce("string error");
 
-    const response = await POST(makeRequest({ rejections: ["テスト"] }) as any);
+    const response = await POST(makeRequest({ rejections: ["テスト"] }));
     const data = await response.json();
 
     expect(response.status).toBe(502);
@@ -295,17 +277,14 @@ describe("POST /api/transform", () => {
       makeRequest(
         { rejections: ["テスト"] },
         { "x-forwarded-for": "reset-" + Math.random() },
-      ) as any,
+      ),
     );
 
     // activeIp のエントリを T+2 で作成
     const activeIp = "active-keep-" + Math.random();
     dateNowSpy.mockReturnValue(T + 2);
     await POST(
-      makeRequest(
-        { rejections: ["テスト"] },
-        { "x-forwarded-for": activeIp },
-      ) as any,
+      makeRequest({ rejections: ["テスト"] }, { "x-forwarded-for": activeIp }),
     );
     // requestLog[activeIp] = [T+2]
 
@@ -317,13 +296,13 @@ describe("POST /api/transform", () => {
       makeRequest(
         { rejections: ["テスト"] },
         { "x-forwarded-for": "trigger-" + Math.random() },
-      ) as any,
+      ),
     );
     expect(response.status).toBe(200);
   });
 
   it("bodyが配列の場合、invalidRequestエラーを返す", async () => {
-    const response = await POST(makeRequest(["item1", "item2"] as any) as any);
+    const response = await POST(makeRequest(["item1", "item2"]));
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe("リクエストの形式が不正です");

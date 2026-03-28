@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 
 const mockSetTheme = vi.fn();
 let mockTheme = "light";
@@ -11,6 +12,14 @@ vi.mock("next-themes", () => ({
 vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 import { ThemeToggle } from "../theme-toggle";
+
+describe("ThemeToggle - SSR", () => {
+  it("マウント前はプレースホルダーを表示する", () => {
+    const html = renderToString(<ThemeToggle />);
+    expect(html).toContain('class="h-9 w-9"');
+    expect(html).not.toContain("button");
+  });
+});
 
 describe("ThemeToggle", () => {
   beforeEach(() => {
