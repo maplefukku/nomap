@@ -127,6 +127,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    return NextResponse.json(
+      { error: messages.validation.invalidRequest },
+      { status: 400 },
+    );
+  }
   const { rejections: rawRejections } = body as { rejections?: unknown };
   const validated = sanitizeRejections(rawRejections);
 

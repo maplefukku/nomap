@@ -215,7 +215,7 @@ describe("transformRejections", () => {
     expect(results[0].esPhrase).toBeUndefined();
   });
 
-  it("配列要素がオブジェクトでない場合にデフォルト値が使われる", async () => {
+  it("配列要素がオブジェクトでない場合にinvalidFormatエラーになる", async () => {
     const mockResponse = ["文字列", 42, null];
 
     mockFetch.mockResolvedValueOnce({
@@ -225,23 +225,23 @@ describe("transformRejections", () => {
       }),
     });
 
-    const results = await transformRejections(["テスト"], "test-key");
-
-    expect(results).toHaveLength(3);
-    for (const r of results) {
-      expect(r.avoidPattern).toBe("");
-      expect(r.direction).toBe("");
-      expect(r.firstAction).toBe("");
-    }
+    await expect(transformRejections(["テスト"], "test-key")).rejects.toThrow(
+      "GLM APIの応答形式が不正です",
+    );
   });
 
-  it("firstActionが文字列でない場合に空文字になる", async () => {
+  it("必須フィールドが欠けた要素はフィルタされ有効な要素のみ返る", async () => {
     const mockResponse = [
       {
         avoidPattern: "パターン",
         direction: "方向",
-        firstAction: 123,
+        firstAction: 123, // 文字列でないため空文字→フィルタ対象
         esPhrase: "フレーズ",
+      },
+      {
+        avoidPattern: "有効パターン",
+        direction: "有効方向",
+        firstAction: "有効アクション",
       },
     ];
 
@@ -254,10 +254,11 @@ describe("transformRejections", () => {
 
     const results = await transformRejections(["テスト"], "test-key");
 
-    expect(results[0].firstAction).toBe("");
+    expect(results).toHaveLength(1);
+    expect(results[0].avoidPattern).toBe("有効パターン");
   });
 
-  it("フィールドが空文字・未定義の場合にデフォルト値が使われる", async () => {
+  it("必須フィールドが全て欠けた場合にinvalidFormatエラーになる", async () => {
     const mockResponse = [
       {
         // avoidPattern, direction, firstAction が未定義
@@ -273,12 +274,8 @@ describe("transformRejections", () => {
       }),
     });
 
-    const results = await transformRejections(["テスト"], "test-key");
-
-    expect(results[0].avoidPattern).toBe("");
-    expect(results[0].direction).toBe("");
-    expect(results[0].firstAction).toBe("");
-    expect(results[0].values).toBe("自律性・成長");
-    expect(results[0].esPhrase).toBe("フレーズ");
+    await expect(transformRejections(["テスト"], "test-key")).rejects.toThrow(
+      "GLM APIの応答形式が不正です",
+    );
   });
 });

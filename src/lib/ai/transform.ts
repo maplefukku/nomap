@@ -97,8 +97,14 @@ export async function transformRejections(
     throw new Error(messages.api.statusError(response.status));
   }
 
-  const data: GLMResponse = await response.json();
-  const content = data.choices[0]?.message?.content;
+  let data: GLMResponse;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(messages.api.parseFailed);
+  }
+
+  const content = data.choices?.[0]?.message?.content;
 
   if (!content) {
     throw new Error(messages.api.emptyResponse);
@@ -117,7 +123,7 @@ export async function transformRejections(
     throw new Error(messages.api.invalidFormat);
   }
 
-  return parsed.map((item: unknown) => {
+  const results = parsed.map((item: unknown) => {
     const obj =
       typeof item === "object" && item !== null
         ? (item as Record<string, unknown>)
@@ -131,4 +137,12 @@ export async function transformRejections(
       esPhrase: typeof obj.esPhrase === "string" ? obj.esPhrase : undefined,
     };
   });
+
+  const valid = results.filter(
+    (r) => r.avoidPattern && r.direction && r.firstAction,
+  );
+  if (valid.length === 0) {
+    throw new Error(messages.api.invalidFormat);
+  }
+  return valid;
 }
