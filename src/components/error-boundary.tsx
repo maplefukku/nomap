@@ -2,7 +2,7 @@
 
 import { Component, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { fadeInUp, hoverTap } from "@/lib/constants";
+import { animations, hoverTap } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 
 interface Props {
@@ -13,8 +13,6 @@ interface Props {
 interface State {
   hasError: boolean;
 }
-
-const errorAnim = fadeInUp(8);
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -36,7 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <motion.div
-          {...errorAnim}
+          {...animations.errorBoundary}
           className="flex flex-col items-center gap-4 rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center"
           role="alert"
         >

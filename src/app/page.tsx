@@ -1,17 +1,16 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { Share2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { RejectionInput } from "@/components/rejection-input";
-import type { ResultData } from "@/components/result-card";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { CardSkeleton } from "@/components/card-skeleton";
-import { fade, fadeInUp, hoverTap } from "@/lib/constants";
+import { fade, animations, hoverTap } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
+import { useTransformApi } from "@/hooks/use-transform-api";
 
 const LoadingFallback = () => <CardSkeleton />;
 
@@ -28,90 +27,34 @@ const ESCopyCard = dynamic(
   { ssr: false, loading: LoadingFallback },
 );
 
-type Phase = "lp" | "input" | "loading" | "result";
-
-const errorFade = fadeInUp(8);
+const LP_FEATURES = [
+  {
+    emoji: "\u{1F3AF}",
+    title: messages.lp.feature1Title,
+    desc: messages.lp.feature1Desc,
+  },
+  {
+    emoji: "\u{1F4A1}",
+    title: messages.lp.feature2Title,
+    desc: messages.lp.feature2Desc,
+  },
+  {
+    emoji: "\u{1F4F1}",
+    title: messages.lp.feature3Title,
+    desc: messages.lp.feature3Desc,
+  },
+] as const;
 
 export default function Home() {
-  const [phase, setPhase] = useState<Phase>("lp");
-  const [results, setResults] = useState<ResultData[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
-  const handleSubmit = useCallback(async (rejections: string[]) => {
-    abortControllerRef.current?.abort();
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    setPhase("loading");
-    setError(null);
-
-    try {
-      let response: Response;
-      try {
-        response = await fetch("/api/transform", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rejections }),
-          signal: controller.signal,
-        });
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        throw new Error(messages.client.networkError);
-      }
-
-      let data: Record<string, unknown>;
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error(messages.client.invalidResponse);
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : messages.client.transformFailed,
-        );
-      }
-
-      if (!Array.isArray(data.results)) {
-        throw new Error(messages.client.invalidResponse);
-      }
-      setResults(data.results as ResultData[]);
-      setPhase("result");
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : messages.client.unexpectedError,
-      );
-      setPhase("input");
-    }
-  }, []);
-
-  const handleReset = useCallback(() => {
-    setResults([]);
-    setPhase("input");
-    setError(null);
-  }, []);
-
-  const handleShare = useCallback(() => {
-    const first = results[0];
-    if (!first) return;
-    const text = encodeURIComponent(
-      messages.share.tweet(first.direction, first.firstAction),
-    );
-    window.open(
-      `https://twitter.com/intent/tweet?text=${text}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-  }, [results]);
+  const {
+    phase,
+    results,
+    error,
+    setPhase,
+    handleSubmit,
+    handleReset,
+    handleShare,
+  } = useTransformApi();
 
   return (
     <div className="flex min-h-full flex-col bg-background">
@@ -144,51 +87,22 @@ export default function Home() {
               </motion.button>
 
               <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                <div
-                  className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
-                  role="group"
-                  aria-label={messages.lp.feature1Title}
-                >
-                  <span className="text-2xl" aria-hidden="true">
-                    🎯
-                  </span>
-                  <h2 className="mt-2 font-semibold">
-                    {messages.lp.feature1Title}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {messages.lp.feature1Desc}
-                  </p>
-                </div>
-                <div
-                  className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
-                  role="group"
-                  aria-label={messages.lp.feature2Title}
-                >
-                  <span className="text-2xl" aria-hidden="true">
-                    💡
-                  </span>
-                  <h2 className="mt-2 font-semibold">
-                    {messages.lp.feature2Title}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {messages.lp.feature2Desc}
-                  </p>
-                </div>
-                <div
-                  className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
-                  role="group"
-                  aria-label={messages.lp.feature3Title}
-                >
-                  <span className="text-2xl" aria-hidden="true">
-                    📱
-                  </span>
-                  <h2 className="mt-2 font-semibold">
-                    {messages.lp.feature3Title}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {messages.lp.feature3Desc}
-                  </p>
-                </div>
+                {LP_FEATURES.map((f) => (
+                  <div
+                    key={f.title}
+                    className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
+                    role="group"
+                    aria-label={f.title}
+                  >
+                    <span className="text-2xl" aria-hidden="true">
+                      {f.emoji}
+                    </span>
+                    <h2 className="mt-2 font-semibold">{f.title}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {f.desc}
+                    </p>
+                  </div>
+                ))}
               </div>
             </motion.section>
           )}
@@ -254,7 +168,7 @@ export default function Home() {
 
                 {error && (
                   <motion.div
-                    {...errorFade}
+                    {...animations.errorInline}
                     className="rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
                     role="alert"
                   >

@@ -54,3 +54,14 @@ export const hoverTap = {
   whileHover: { scale: 1.02 },
   whileTap: { scale: 0.98 },
 } as const;
+
+// ---------------------------------------------------------------------------
+// Component-specific animation presets (centralised to avoid scattered defs)
+// ---------------------------------------------------------------------------
+export const animations = {
+  actionCard: fadeInUp(12, 0.2),
+  esCard: fadeInUp(12, 0.3),
+  errorBoundary: fadeInUp(8),
+  errorInline: fadeInUp(8),
+  emptyState: { ...fade, transition: { duration: 0.5, delay: 0.2 } },
+} as const;

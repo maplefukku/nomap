@@ -4,14 +4,12 @@ import { memo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ClipboardCopy } from "lucide-react";
 import { toast } from "sonner";
-import { fadeInUp } from "@/lib/constants";
+import { animations } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 
 interface ESCopyCardProps {
   phrase: string;
 }
-
-const esFadeIn = fadeInUp(12, 0.3);
 
 export const ESCopyCard = memo(function ESCopyCard({
   phrase,
@@ -27,7 +25,7 @@ export const ESCopyCard = memo(function ESCopyCard({
 
   return (
     <motion.div
-      {...esFadeIn}
+      {...animations.esCard}
       className="rounded-2xl border bg-card p-4 shadow-sm"
     >
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

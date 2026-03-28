@@ -2,21 +2,19 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { fadeInUp } from "@/lib/constants";
+import { animations } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 
 interface ActionCardProps {
   action: string;
 }
 
-const actionFadeIn = fadeInUp(12, 0.2);
-
 export const ActionCard = memo(function ActionCard({
   action,
 }: ActionCardProps) {
   return (
     <motion.div
-      {...actionFadeIn}
+      {...animations.actionCard}
       className="rounded-2xl border bg-muted/50 p-4"
     >
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

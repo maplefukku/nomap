@@ -2,18 +2,13 @@
 
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { fade } from "@/lib/constants";
+import { animations } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
-
-const emptyFade = {
-  ...fade,
-  transition: { duration: 0.5, delay: 0.2 },
-} as const;
 
 export const EmptyState = memo(function EmptyState() {
   return (
     <motion.div
-      {...emptyFade}
+      {...animations.emptyState}
       className="flex flex-col items-center gap-4 py-16 text-center"
     >
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
