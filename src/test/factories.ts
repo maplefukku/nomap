@@ -21,18 +21,6 @@ export function buildResultData(
 }
 
 /**
- * Create a mock GLM API successful response for fetch.
- */
-export function buildGLMFetchResponse(results: ResultData[]) {
-  return {
-    ok: true,
-    json: async () => ({
-      choices: [{ message: { content: JSON.stringify(results) } }],
-    }),
-  };
-}
-
-/**
  * Create a mock client-side API response (from /api/transform).
  */
 export function buildClientAPIResponse(results: ResultData[]) {
