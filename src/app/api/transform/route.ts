@@ -24,13 +24,18 @@ const CLEANUP_INTERVAL_MS = 60_000;
  * @param ip - クライアントのIPアドレス
  * @returns レート制限に達している場合 true
  */
+/** ウィンドウ外のタイムスタンプを除去した配列を返す */
+function filterRecent(timestamps: number[], now: number): number[] {
+  return timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+}
+
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
 
   // Periodically purge stale entries to prevent unbounded Map growth
   if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
     for (const [key, timestamps] of requestLog) {
-      const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+      const recent = filterRecent(timestamps, now);
       if (recent.length === 0) {
         requestLog.delete(key);
       } else {
@@ -40,8 +45,7 @@ function isRateLimited(ip: string): boolean {
     lastCleanup = now;
   }
 
-  const timestamps = requestLog.get(ip) ?? [];
-  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  const recent = filterRecent(requestLog.get(ip) ?? [], now);
 
   if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
     return true;

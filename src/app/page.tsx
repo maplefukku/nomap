@@ -217,7 +217,7 @@ export default function Home() {
               <div className="flex flex-col gap-4" aria-live="polite">
                 {results.map((result, i) => (
                   <ErrorBoundary
-                    key={i}
+                    key={`${result.avoidPattern}-${result.direction}`}
                     fallbackMessage="結果の表示中にエラーが発生しました"
                   >
                     <div className="flex flex-col gap-4">
