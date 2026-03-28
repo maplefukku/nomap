@@ -1,12 +1,8 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
+import { fadeInUp, fade, animations, MAX_REJECTION_LENGTH } from "../constants";
 
 describe("constants - animation presets", () => {
-  afterEach(() => {
-    vi.resetModules();
-  });
-
-  it("fadeInUp: デフォルト引数で正しいアニメーションを返す", async () => {
-    const { fadeInUp } = await import("../constants");
+  it("fadeInUp: デフォルト引数で正しいアニメーションを返す", () => {
     const result = fadeInUp();
     expect(result.initial).toEqual({ opacity: 0, y: 12 });
     expect(result.animate).toEqual({ opacity: 1, y: 0 });
@@ -14,23 +10,20 @@ describe("constants - animation presets", () => {
     expect(result.transition.delay).toBe(0);
   });
 
-  it("fadeInUp: カスタム引数を受け付ける", async () => {
-    const { fadeInUp } = await import("../constants");
+  it("fadeInUp: カスタム引数を受け付ける", () => {
     const result = fadeInUp(24, 0.5, 0.8);
     expect(result.initial.y).toBe(24);
     expect(result.transition.delay).toBe(0.5);
     expect(result.transition.duration).toBe(0.8);
   });
 
-  it("fade: 正しいプリセットを持つ", async () => {
-    const { fade } = await import("../constants");
+  it("fade: 正しいプリセットを持つ", () => {
     expect(fade.initial).toEqual({ opacity: 0 });
     expect(fade.animate).toEqual({ opacity: 1 });
     expect(fade.exit).toEqual({ opacity: 0 });
   });
 
-  it("animations: 全てのプリセットが定義されている", async () => {
-    const { animations } = await import("../constants");
+  it("animations: 全てのプリセットが定義されている", () => {
     expect(animations.actionCard).toBeDefined();
     expect(animations.esCard).toBeDefined();
     expect(animations.errorBoundary).toBeDefined();
@@ -38,8 +31,7 @@ describe("constants - animation presets", () => {
     expect(animations.emptyState).toBeDefined();
   });
 
-  it("MAX_REJECTION_LENGTH: クライアント用のデフォルト値を返す", async () => {
-    const { MAX_REJECTION_LENGTH } = await import("../constants");
+  it("MAX_REJECTION_LENGTH: クライアント用のデフォルト値を返す", () => {
     expect(MAX_REJECTION_LENGTH).toBe(200);
   });
 });
