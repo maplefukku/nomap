@@ -17,6 +17,7 @@ export function useTransformApi() {
   const [results, setResults] = useState<ResultData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  /** リトライ時に直前の入力を再送するためのキャッシュ */
   const lastRejectionsRef = useRef<string[]>([]);
 
   useEffect(() => {
@@ -35,6 +36,8 @@ export function useTransformApi() {
     setError(null);
 
     try {
+      // 内側のtry-catchでfetchとJSONパースの各段階のエラーを
+      // ユーザー向けメッセージに変換し、外側のcatchで一括処理する
       let response: Response;
       try {
         response = await fetch("/api/transform", {
@@ -44,6 +47,7 @@ export function useTransformApi() {
           signal: controller.signal,
         });
       } catch (err) {
+        // ユーザー操作による中断は正常フローなので何もしない
         if (err instanceof DOMException && err.name === "AbortError") return;
         throw new Error(messages.client.networkError);
       }

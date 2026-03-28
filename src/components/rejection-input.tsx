@@ -113,7 +113,7 @@ export const RejectionInput = memo(function RejectionInput({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(e.target.value);
-      setHint((prev) => (prev ? null : prev));
+      setHint(null);
     },
     [],
   );

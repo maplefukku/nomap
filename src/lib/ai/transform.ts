@@ -41,18 +41,6 @@ const SYSTEM_PROMPT = `あなたはキャリア・ライフコーチです。ユ
 - 具体的で実行可能なアドバイスにする
 - valuesは「・」区切りで3〜5個のキーワードにする`;
 
-/**
- * 「やりたくないこと」リストをGLM APIで分析し、構造化された結果に変換する。
- *
- * GLM API (OpenAI互換) にシステムプロンプトとユーザー入力を送信し、
- * 回避パターン・進むべき方向・価値観・最初のアクション・ES用フレーズを
- * 含むJSON配列として応答を受け取る。
- *
- * @param rejections - ユーザーが入力した「やりたくないこと」の文字列配列
- * @param apiKey - GLM APIの認証キー
- * @returns 分析結果の配列（1〜3件）
- * @throws タイムアウト、APIエラー、パース失敗時にErrorをスロー
- */
 /** GLM APIにチャットリクエストを送信し、レスポンスを返す */
 async function fetchGLMCompletion(
   chatMessages: ChatMessage[],
@@ -98,6 +86,7 @@ function extractContent(response: GLMResponse): string {
 
 /** LLMが返したJSON文字列をResultData配列にパースし、必須フィールドで絞り込む */
 function parseResultsFromContent(content: string): ResultData[] {
+  // LLMがmarkdownコードブロック（```json ... ```）で囲む場合があるため除去
   const jsonStr = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
 
   let parsed: unknown;
@@ -111,6 +100,8 @@ function parseResultsFromContent(content: string): ResultData[] {
     throw new Error(messages.api.invalidFormat);
   }
 
+  // 各要素を型安全にマッピング。必須フィールド（avoidPattern, direction, firstAction）は
+  // 欠損時に空文字、任意フィールド（values, esPhrase）はundefinedにフォールバックする
   const results = parsed.map((item: unknown) => {
     const obj =
       typeof item === "object" && item !== null
@@ -126,6 +117,7 @@ function parseResultsFromContent(content: string): ResultData[] {
     };
   });
 
+  // 必須3フィールドが全て空でない要素のみを有効な結果として返す
   const valid = results.filter(
     (r) => r.avoidPattern && r.direction && r.firstAction,
   );

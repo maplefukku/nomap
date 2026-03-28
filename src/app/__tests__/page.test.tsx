@@ -11,8 +11,17 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock next/dynamic to render components synchronously
+const { dynamicLoadingComponents } = vi.hoisted(() => ({
+  dynamicLoadingComponents: [] as React.ComponentType[],
+}));
 vi.mock("next/dynamic", () => ({
-  default: (loader: () => Promise<{ default?: unknown } | unknown>) => {
+  default: (
+    loader: () => Promise<{ default?: unknown } | unknown>,
+    options?: { loading?: React.ComponentType },
+  ) => {
+    if (options?.loading) {
+      dynamicLoadingComponents.push(options.loading);
+    }
     const Component = vi.fn(() => null);
     // Eagerly resolve the dynamic import for testing
     loader().then((mod: { default?: unknown } | unknown) => {
@@ -72,6 +81,10 @@ vi.mock("@/components/es-copy-card", () => ({
 
 vi.mock("@/components/empty-state", () => ({
   EmptyState: () => <div data-testid="empty-state">Empty</div>,
+}));
+
+vi.mock("@/components/card-skeleton", () => ({
+  CardSkeleton: () => <div data-testid="card-skeleton">CardSkeleton</div>,
 }));
 
 const mockFetch = vi.fn();
@@ -383,6 +396,13 @@ describe("Home (page.tsx)", () => {
         messages.client.networkError,
       );
     });
+  });
+
+  it("LoadingFallbackがCardSkeletonをレンダリングする", () => {
+    const LoadingFallback = dynamicLoadingComponents[0];
+    expect(LoadingFallback).toBeDefined();
+    const { getByTestId } = render(<LoadingFallback />);
+    expect(getByTestId("card-skeleton")).toBeInTheDocument();
   });
 
   it("リトライボタンでlastRejectionsを使って再送信する", async () => {

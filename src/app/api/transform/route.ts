@@ -156,7 +156,8 @@ export async function POST(request: NextRequest) {
       "[transform] LLM call failed:",
       err instanceof Error ? err.message : err,
     );
-    // ユーザー向けに安全なエラーメッセージのみ返す（内部詳細を露出しない）
+    // セキュリティ: 内部エラー詳細の露出を防ぐため、ホワイトリストに一致する
+    // メッセージのみクライアントに返し、それ以外は汎用メッセージに置換する
     const safeMessages: string[] = [
       messages.api.timeout,
       messages.api.emptyResponse,

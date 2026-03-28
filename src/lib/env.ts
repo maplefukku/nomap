@@ -13,9 +13,14 @@ interface ClientEnv {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: string | undefined;
 }
 
-function requiredInProduction(value: string | undefined, name: string): string | undefined {
+function requiredInProduction(
+  value: string | undefined,
+  name: string,
+): string | undefined {
   if (!value && process.env.NODE_ENV === "production") {
-    console.warn(`⚠ 環境変数 ${name} が設定されていません`);
+    console.warn(
+      `⚠ 環境変数 ${name} が未設定です。本番環境では機能が正常に動作しない可能性があります`,
+    );
   }
   return value;
 }
@@ -30,10 +35,10 @@ export const serverEnv: ServerEnv = {
 export const clientEnv: ClientEnv = {
   NEXT_PUBLIC_SUPABASE_URL: requiredInProduction(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    "NEXT_PUBLIC_SUPABASE_URL"
+    "NEXT_PUBLIC_SUPABASE_URL",
   ),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: requiredInProduction(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   ),
 };
