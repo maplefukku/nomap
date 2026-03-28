@@ -237,7 +237,7 @@ describe("POST /api/transform", () => {
     // lastCleanupはモジュールロード時のDate.now()なので、
     // 現在時刻+120s以上にする
     const futureTime = Date.now() + 200_000;
-    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(futureTime);
+    const _dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(futureTime);
 
     // 別のIPでリクエスト → クリーンアップが実行される
     const response = await POST(
