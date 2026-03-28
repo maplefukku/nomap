@@ -3,18 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ESCopyCard } from "../es-copy-card";
 
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({
-      children,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement> & {
-      initial?: unknown;
-      animate?: unknown;
-      transition?: unknown;
-    }) => <div {...props}>{children}</div>,
-  },
-}));
+vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },

@@ -2,14 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { EmptyState } from "../empty-state";
 
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({
-      children,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
-  },
-}));
+vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 describe("EmptyState", () => {
   it("renders heading", () => {
@@ -20,7 +13,7 @@ describe("EmptyState", () => {
   it("renders description", () => {
     render(<EmptyState />);
     expect(
-      screen.getByText(/「やりたくないこと」を入力すると/)
+      screen.getByText(/「やりたくないこと」を入力すると/),
     ).toBeInTheDocument();
   });
 });

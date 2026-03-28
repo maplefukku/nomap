@@ -8,17 +8,7 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: mockTheme, setTheme: mockSetTheme }),
 }));
 
-vi.mock("framer-motion", () => ({
-  motion: {
-    button: ({
-      children,
-      whileTap: _whileTap,
-      ...props
-    }: React.ButtonHTMLAttributes<HTMLButtonElement> & { whileTap?: unknown }) => (
-      <button {...props}>{children}</button>
-    ),
-  },
-}));
+vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 import { ThemeToggle } from "../theme-toggle";
 

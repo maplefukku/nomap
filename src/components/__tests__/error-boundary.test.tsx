@@ -3,28 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ErrorBoundary } from "../error-boundary";
 
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({
-      children,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement> & {
-      variants?: unknown;
-      initial?: unknown;
-      animate?: unknown;
-      transition?: unknown;
-    }) => <div {...props}>{children}</div>,
-    button: ({
-      children,
-      whileTap: _whileTap,
-      whileHover: _whileHover,
-      ...props
-    }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-      whileTap?: unknown;
-      whileHover?: unknown;
-    }) => <button {...props}>{children}</button>,
-  },
-}));
+vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 function ThrowError({ shouldThrow }: { shouldThrow: boolean }) {
   if (shouldThrow) throw new Error("テストエラー");

@@ -2,50 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { messages } from "@/lib/i18n";
+import { buildResultData, buildClientAPIResponse } from "@/test/factories";
 
-// Mock framer-motion
-const motionProps = [
-  "whileHover",
-  "whileTap",
-  "whileFocus",
-  "initial",
-  "animate",
-  "exit",
-  "transition",
-  "variants",
-  "layout",
-];
-
-function filterMotionProps(props: Record<string, unknown>) {
-  const filtered: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(props)) {
-    if (!motionProps.includes(key)) {
-      filtered[key] = value;
-    }
-  }
-  return filtered;
-}
-
-vi.mock("framer-motion", () => ({
-  motion: {
-    section: ({ children, ...props }: Record<string, unknown>) => (
-      <section {...filterMotionProps(props)}>
-        {children as React.ReactNode}
-      </section>
-    ),
-    button: ({ children, ...props }: Record<string, unknown>) => (
-      <button {...filterMotionProps(props)}>
-        {children as React.ReactNode}
-      </button>
-    ),
-    div: ({ children, ...props }: Record<string, unknown>) => (
-      <div {...filterMotionProps(props)}>{children as React.ReactNode}</div>
-    ),
-  },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-}));
+vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 // Mock next/dynamic to render components synchronously
 vi.mock("next/dynamic", () => ({
@@ -144,18 +103,13 @@ describe("Home (page.tsx)", () => {
 
   it("shows results after successful API call", async () => {
     const mockResults = [
-      {
-        avoidPattern: "パターン",
+      buildResultData({
         direction: "自由な働き方",
-        values: "自律性",
         firstAction: "リモート求人を探す",
         esPhrase: "自律的な環境",
-      },
+      }),
     ];
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ results: mockResults }),
-    });
+    mockFetch.mockResolvedValueOnce(buildClientAPIResponse(mockResults));
 
     const user = userEvent.setup();
     render(<Home />);
@@ -245,18 +199,8 @@ describe("Home (page.tsx)", () => {
   });
 
   it("resets to input phase when reset button is clicked", async () => {
-    const mockResults = [
-      {
-        avoidPattern: "パターン",
-        direction: "方向",
-        firstAction: "アクション",
-        esPhrase: "フレーズ",
-      },
-    ];
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ results: mockResults }),
-    });
+    const mockResults = [buildResultData()];
+    mockFetch.mockResolvedValueOnce(buildClientAPIResponse(mockResults));
 
     const user = userEvent.setup();
     render(<Home />);
@@ -278,18 +222,13 @@ describe("Home (page.tsx)", () => {
     window.open = mockOpen;
 
     const mockResults = [
-      {
-        avoidPattern: "パターン",
+      buildResultData({
         direction: "自由な働き方",
-        values: "自律性",
         firstAction: "リモート求人を探す",
         esPhrase: "自律的な環境",
-      },
+      }),
     ];
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ results: mockResults }),
-    });
+    mockFetch.mockResolvedValueOnce(buildClientAPIResponse(mockResults));
 
     const user = userEvent.setup();
     render(<Home />);
@@ -317,10 +256,7 @@ describe("Home (page.tsx)", () => {
     const mockOpen = vi.fn();
     window.open = mockOpen;
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ results: [] }),
-    });
+    mockFetch.mockResolvedValueOnce(buildClientAPIResponse([]));
 
     const user = userEvent.setup();
     render(<Home />);

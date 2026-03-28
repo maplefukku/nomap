@@ -6,14 +6,7 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "light", setTheme: vi.fn() }),
 }));
 
-vi.mock("framer-motion", () => ({
-  motion: {
-    button: ({
-      children,
-      ...props
-    }: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props}>{children}</button>,
-  },
-}));
+vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
 describe("Header", () => {
   it("renders the logo text", () => {
