@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { toast } from "sonner";
 import { messages } from "@/lib/i18n";
+import { buildResultData, buildClientAPIResponse } from "@/test/factories";
 import { useTransformApi } from "../use-transform-api";
 
 const mockFetch = vi.fn();
@@ -12,20 +13,7 @@ vi.mock("sonner", () => ({
   toast: { error: vi.fn() },
 }));
 
-const successResponse = {
-  ok: true,
-  json: async () => ({
-    results: [
-      {
-        avoidPattern: "テスト",
-        direction: "テスト方向",
-        values: "テスト価値",
-        firstAction: "テストアクション",
-        esPhrase: "テストフレーズ",
-      },
-    ],
-  }),
-};
+const successResponse = buildClientAPIResponse([buildResultData()]);
 
 describe("useTransformApi - handleRetry", () => {
   beforeEach(() => {
@@ -61,10 +49,81 @@ describe("useTransformApi - handleRetry", () => {
   });
 });
 
+describe("useTransformApi - データ検証", () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it("directionが文字列でない場合エラーがスローされる", async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            avoidPattern: "テスト",
+            direction: 123,
+            values: "テスト価値",
+            firstAction: "テストアクション",
+            esPhrase: "テストフレーズ",
+          },
+        ],
+      }),
+    });
+
+    const { result } = renderHook(() => useTransformApi());
+
+    await act(async () => {
+      await result.current.handleSubmit(["テスト拒否"]);
+    });
+
+    expect(result.current.error).toBe(messages.client.invalidResponse);
+    expect(result.current.phase).toBe("input");
+  });
+
+  it("firstActionが文字列でない場合エラーがスローされる", async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            avoidPattern: "テスト",
+            direction: "テスト方向",
+            values: "テスト価値",
+            firstAction: 456,
+            esPhrase: "テストフレーズ",
+          },
+        ],
+      }),
+    });
+
+    const { result } = renderHook(() => useTransformApi());
+
+    await act(async () => {
+      await result.current.handleSubmit(["テスト拒否"]);
+    });
+
+    expect(result.current.error).toBe(messages.client.invalidResponse);
+    expect(result.current.phase).toBe("input");
+  });
+});
+
 describe("useTransformApi - handleShare", () => {
   beforeEach(() => {
     mockFetch.mockReset();
     vi.mocked(toast.error).mockClear();
+  });
+
+  it("結果が空の場合handleShareは何もしない", () => {
+    const mockOpen = vi.fn();
+    window.open = mockOpen;
+
+    const { result } = renderHook(() => useTransformApi());
+
+    act(() => {
+      result.current.handleShare();
+    });
+
+    expect(mockOpen).not.toHaveBeenCalled();
   });
 
   it("ポップアップがブロックされた場合エラートーストを表示する", async () => {
