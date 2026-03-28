@@ -1,13 +1,14 @@
 "use client";
 
 import { memo } from "react";
+import { messages } from "@/lib/i18n";
 
 export const CardSkeleton = memo(function CardSkeleton() {
   return (
     <div
       className="animate-pulse rounded-2xl border border-border bg-card p-6 shadow-sm"
       role="status"
-      aria-label="読み込み中"
+      aria-label={messages.skeleton.loading}
     >
       <div className="flex flex-col gap-5">
         <div className="h-5 w-32 rounded-lg bg-muted" />
@@ -22,7 +23,7 @@ export const CardSkeleton = memo(function CardSkeleton() {
           <div className="h-5 w-3/4 rounded-lg bg-muted" />
         </div>
       </div>
-      <span className="sr-only">結果を読み込み中...</span>
+      <span className="sr-only">{messages.skeleton.loadingResults}</span>
     </div>
   );
 });

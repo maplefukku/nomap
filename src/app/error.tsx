@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/constants";
+import { messages } from "@/lib/i18n";
 
 export default function Error({
   error,
@@ -21,10 +22,10 @@ export default function Error({
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
       <motion.div {...fadeInUp(12)} className="text-center space-y-3">
         <h2 className="text-2xl font-bold tracking-tight">
-          問題が発生しました
+          {messages.errorPage.heading}
         </h2>
         <p className="text-muted-foreground text-sm max-w-md">
-          予期しないエラーが発生しました。もう一度お試しください。
+          {messages.errorPage.description}
         </p>
       </motion.div>
       <motion.button
@@ -34,9 +35,9 @@ export default function Error({
         type="button"
         onClick={reset}
         className="rounded-2xl bg-foreground text-background px-6 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        aria-label="再試行"
+        aria-label={messages.errorPage.retryLabel}
       >
-        もう一度試す
+        {messages.errorPage.retryText}
       </motion.button>
     </div>
   );

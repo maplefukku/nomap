@@ -3,6 +3,7 @@ import { Inter, Noto_Sans_JP } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
+import { messages, LOCALE_SHORT } from "@/lib/i18n";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,13 +22,11 @@ const SITE_URL =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "NoMap — やりたくないから、地図をつくる",
-  description:
-    "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+  title: messages.meta.title,
+  description: messages.meta.description,
   openGraph: {
-    title: "NoMap — やりたくないから、地図をつくる",
-    description:
-      "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+    title: messages.meta.title,
+    description: messages.meta.description,
     locale: "ja_JP",
     type: "website",
     siteName: "NoMap",
@@ -35,9 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "NoMap — やりたくないから、地図をつくる",
-    description:
-      "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+    title: messages.meta.title,
+    description: messages.meta.description,
   },
   robots: {
     index: true,
@@ -52,16 +50,13 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="ja"
+      lang={LOCALE_SHORT}
       className={`${inter.variable} ${notoSansJP.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <a
-          href="#main-content"
-          className="skip-link"
-        >
-          メインコンテンツへスキップ
+        <a href="#main-content" className="skip-link">
+          {messages.layout.skipToMain}
         </a>
         <ThemeProvider>
           {children}

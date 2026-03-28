@@ -3,6 +3,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import { EASE_OUT_QUART, fadeInUp } from "@/lib/constants";
+import { messages } from "@/lib/i18n";
 
 export interface ResultData {
   avoidPattern: string;
@@ -19,7 +20,10 @@ interface ResultCardProps {
 
 const { initial, animate } = fadeInUp(16);
 
-export const ResultCard = memo(function ResultCard({ result, index = 0 }: ResultCardProps) {
+export const ResultCard = memo(function ResultCard({
+  result,
+  index = 0,
+}: ResultCardProps) {
   return (
     <motion.div
       initial={initial}
@@ -30,23 +34,25 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
       className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow"
     >
       <h3 className="text-xl font-bold tracking-tight text-foreground">
-        あなたのNoMap
+        {messages.resultCard.title}
       </h3>
 
       <div className="h-px bg-border" aria-hidden="true" />
 
       <div className="flex flex-col gap-1.5">
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          避けるべき構造
+          {messages.resultCard.avoidPattern}
         </span>
-        <p className="text-sm leading-relaxed text-foreground/80">{result.avoidPattern}</p>
+        <p className="text-sm leading-relaxed text-foreground/80">
+          {result.avoidPattern}
+        </p>
       </div>
 
       <div className="h-px bg-border" aria-hidden="true" />
 
       <div className="flex flex-col gap-1.5">
         <span className="text-xs font-medium uppercase tracking-wider text-accent">
-          進むべき方向
+          {messages.resultCard.direction}
         </span>
         <p className="text-lg font-semibold leading-snug tracking-tight text-foreground">
           {result.direction}
@@ -59,9 +65,11 @@ export const ResultCard = memo(function ResultCard({ result, index = 0 }: Result
 
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              あなたの価値観
+              {messages.resultCard.values}
             </span>
-            <p className="text-sm leading-relaxed text-foreground/80">{result.values}</p>
+            <p className="text-sm leading-relaxed text-foreground/80">
+              {result.values}
+            </p>
           </div>
         </>
       )}

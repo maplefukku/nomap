@@ -1,4 +1,10 @@
 // ---------------------------------------------------------------------------
+// ロケール設定
+// ---------------------------------------------------------------------------
+export const LOCALE = "ja-JP" as const;
+export const LOCALE_SHORT = "ja" as const;
+
+// ---------------------------------------------------------------------------
 // 日本語ロケール定数
 // i18n対応時にはこのファイルをロケールごとに分割する
 // ---------------------------------------------------------------------------
@@ -56,6 +62,30 @@ export const messages = {
     feature3Desc: "「私のNoMap」を画像で共有",
   },
 
+  // -------------------------------------------------------------------------
+  // 入力フォーム
+  // -------------------------------------------------------------------------
+  input: {
+    heading: "やりたくないことを教えて",
+    description:
+      "「やりたくないこと」を入力してEnterで追加。あなたの拒否から、進むべき方向を見つけます。",
+    groupLabel: "拒否リスト入力エリア",
+    removeItem: (item: string) => `「${item}」を削除`,
+    placeholderEmpty: "例：満員電車で通勤する",
+    placeholderMore: "さらに追加...",
+    inputLabel: "拒否項目を入力",
+    charLimit: (max: number) => `${max}文字以内で入力してください`,
+    duplicate: "すでに追加されています",
+    itemCount: (count: number) => `${count}件の拒否`,
+    hint: "Enterで追加、Backspaceで削除",
+    analyzing: "分析中",
+    analyzingEllipsis: "分析中...",
+    submit: "方向を見つける",
+  },
+
+  // -------------------------------------------------------------------------
+  // 結果表示
+  // -------------------------------------------------------------------------
   result: {
     heading: "あなたの地図",
     subheading: "拒否の裏にある、本当に進みたい方向",
@@ -63,7 +93,158 @@ export const messages = {
     reset: "やり直す",
   },
 
+  resultCard: {
+    title: "あなたのNoMap",
+    avoidPattern: "避けるべき構造",
+    direction: "進むべき方向",
+    values: "あなたの価値観",
+  },
+
+  actionCard: {
+    label: "今日できる最初の1アクション",
+  },
+
+  esCopy: {
+    label: "ESに使える「軸」",
+    copyButton: "ESにコピー",
+    copySuccess: "ES用フレーズをコピーしました",
+    copyError: "コピーに失敗しました。手動でコピーしてください",
+  },
+
+  // -------------------------------------------------------------------------
+  // 空状態
+  // -------------------------------------------------------------------------
+  emptyState: {
+    heading: "地図はまだない",
+    description:
+      "「やりたくないこと」を入力すると、あなたが本当に進みたい方向が見えてきます",
+  },
+
+  // -------------------------------------------------------------------------
+  // エラー
+  // -------------------------------------------------------------------------
+  errorBoundary: {
+    defaultMessage: "表示中にエラーが発生しました",
+    retry: "再表示する",
+    resultError: "結果の表示中にエラーが発生しました",
+  },
+
+  errorPage: {
+    heading: "問題が発生しました",
+    description: "予期しないエラーが発生しました。もう一度お試しください。",
+    retryLabel: "再試行",
+    retryText: "もう一度試す",
+  },
+
+  // -------------------------------------------------------------------------
+  // スケルトン / ローディング
+  // -------------------------------------------------------------------------
+  skeleton: {
+    loading: "読み込み中",
+    loadingResults: "結果を読み込み中...",
+  },
+
+  // -------------------------------------------------------------------------
+  // テーマ切替
+  // -------------------------------------------------------------------------
+  theme: {
+    toLight: "ライトモードに切り替え",
+    toDark: "ダークモードに切り替え",
+  },
+
+  // -------------------------------------------------------------------------
+  // レイアウト / メタ
+  // -------------------------------------------------------------------------
+  layout: {
+    skipToMain: "メインコンテンツへスキップ",
+  },
+
+  meta: {
+    title: "NoMap — やりたくないから、地図をつくる",
+    description:
+      "「やりたくないこと」から、あなたが本当に進みたい方向を見つけるAIツール",
+  },
+
+  // -------------------------------------------------------------------------
+  // シェア / アクセシビリティ
+  // -------------------------------------------------------------------------
+  share: {
+    tweet: (direction: string, action: string) =>
+      `私のNoMap: ${direction} - ${action} #NoMap`,
+  },
+
+  a11y: {
+    analyzingStatus: "分析中です。しばらくお待ちください。",
+    resultsStatus: (count: number) => `${count}件の結果が表示されました。`,
+  },
+
   footer: {
     tagline: "NoMap — 「やりたくないこと」からあなたの地図をつくる",
   },
 } as const;
+
+// ---------------------------------------------------------------------------
+// 数値フォーマット
+// ---------------------------------------------------------------------------
+const numberFormatter = new Intl.NumberFormat(LOCALE);
+
+export function formatNumber(value: number): string {
+  return numberFormatter.format(value);
+}
+
+// ---------------------------------------------------------------------------
+// 日付フォーマット
+// ---------------------------------------------------------------------------
+const dateFormatters = {
+  short: new Intl.DateTimeFormat(LOCALE, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }),
+  long: new Intl.DateTimeFormat(LOCALE, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  }),
+  time: new Intl.DateTimeFormat(LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit",
+  }),
+} as const;
+
+type DateStyle = keyof typeof dateFormatters;
+
+export function formatDate(date: Date, style: DateStyle = "short"): string {
+  return dateFormatters[style].format(date);
+}
+
+// ---------------------------------------------------------------------------
+// 相対時間フォーマット
+// ---------------------------------------------------------------------------
+const relativeFormatter = new Intl.RelativeTimeFormat(LOCALE, {
+  numeric: "auto",
+});
+
+const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+  ["year", 365 * 24 * 60 * 60 * 1000],
+  ["month", 30 * 24 * 60 * 60 * 1000],
+  ["week", 7 * 24 * 60 * 60 * 1000],
+  ["day", 24 * 60 * 60 * 1000],
+  ["hour", 60 * 60 * 1000],
+  ["minute", 60 * 1000],
+  ["second", 1000],
+];
+
+export function formatRelativeTime(
+  date: Date,
+  base: Date = new Date(),
+): string {
+  const diffMs = date.getTime() - base.getTime();
+  for (const [unit, ms] of RELATIVE_UNITS) {
+    if (Math.abs(diffMs) >= ms) {
+      return relativeFormatter.format(Math.round(diffMs / ms), unit);
+    }
+  }
+  return relativeFormatter.format(0, "second");
+}

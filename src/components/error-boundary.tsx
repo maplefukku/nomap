@@ -3,6 +3,7 @@
 import { Component, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { fadeInUp, hoverTap } from "@/lib/constants";
+import { messages } from "@/lib/i18n";
 
 interface Props {
   children: ReactNode;
@@ -40,7 +41,8 @@ export class ErrorBoundary extends Component<Props, State> {
           role="alert"
         >
           <p className="text-sm text-destructive">
-            {this.props.fallbackMessage ?? "表示中にエラーが発生しました"}
+            {this.props.fallbackMessage ??
+              messages.errorBoundary.defaultMessage}
           </p>
           <motion.button
             {...hoverTap}
@@ -48,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
             onClick={() => this.setState({ hasError: false })}
             className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            再表示する
+            {messages.errorBoundary.retry}
           </motion.button>
         </motion.div>
       );

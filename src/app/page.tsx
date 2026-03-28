@@ -104,7 +104,7 @@ export default function Home() {
     const first = results[0];
     if (!first) return;
     const text = encodeURIComponent(
-      `私のNoMap: ${first.direction} - ${first.firstAction} #NoMap`,
+      messages.share.tweet(first.direction, first.firstAction),
     );
     window.open(
       `https://twitter.com/intent/tweet?text=${text}`,
@@ -231,7 +231,7 @@ export default function Home() {
                 {results.map((result, i) => (
                   <ErrorBoundary
                     key={`${result.avoidPattern}-${result.direction}`}
-                    fallbackMessage="結果の表示中にエラーが発生しました"
+                    fallbackMessage={messages.errorBoundary.resultError}
                   >
                     <div className="flex flex-col gap-4">
                       <ResultCard result={result} index={i} />
@@ -270,8 +270,8 @@ export default function Home() {
       </main>
 
       <div className="sr-only" aria-live="assertive" aria-atomic="true">
-        {phase === "loading" && "分析中です。しばらくお待ちください。"}
-        {phase === "result" && `${results.length}件の結果が表示されました。`}
+        {phase === "loading" && messages.a11y.analyzingStatus}
+        {phase === "result" && messages.a11y.resultsStatus(results.length)}
       </div>
 
       <footer className="border-t border-border/50 py-6">

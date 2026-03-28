@@ -3,6 +3,7 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState, memo } from "react";
 import { motion } from "framer-motion";
+import { messages } from "@/lib/i18n";
 
 const tapAnimation = { scale: 0.92 } as const;
 
@@ -27,7 +28,7 @@ export const ThemeToggle = memo(function ThemeToggle() {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       type="button"
       className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-      aria-label={isDark ? "ライトモードに切り替え" : "ダークモードに切り替え"}
+      aria-label={isDark ? messages.theme.toLight : messages.theme.toDark}
     >
       {isDark ? (
         <svg
