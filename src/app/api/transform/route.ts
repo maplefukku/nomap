@@ -102,9 +102,10 @@ export async function POST(request: NextRequest) {
   const apiKey = serverEnv.GLM_API_KEY;
 
   if (!apiKey) {
+    console.error("[transform] GLM_API_KEY is not configured");
     return NextResponse.json(
       { error: messages.api.missingKey },
-      { status: 500 },
+      { status: 503 },
     );
   }
 
@@ -151,6 +152,10 @@ export async function POST(request: NextRequest) {
       },
     );
   } catch (err) {
+    console.error(
+      "[transform] LLM call failed:",
+      err instanceof Error ? err.message : err,
+    );
     // ユーザー向けに安全なエラーメッセージのみ返す（内部詳細を露出しない）
     const safeMessages: string[] = [
       messages.api.timeout,

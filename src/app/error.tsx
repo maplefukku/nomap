@@ -13,9 +13,11 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.error(error);
-    }
+    console.error("[app-error]", {
+      message: error.message,
+      digest: error.digest,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }, [error]);
 
   return (

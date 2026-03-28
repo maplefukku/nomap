@@ -104,7 +104,7 @@ describe("ErrorBoundary", () => {
         (c: unknown[]) => c[0] === "[ErrorBoundary]",
       );
       expect(boundaryCall).toBeDefined();
-      expect(boundaryCall![1]).toBeInstanceOf(Error);
+      expect(boundaryCall![1]).toMatchObject({ message: expect.any(String) });
     } finally {
       process.env.NODE_ENV = originalEnv;
     }

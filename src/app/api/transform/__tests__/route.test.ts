@@ -83,7 +83,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("拒否リストが空です");
   });
 
-  it("returns 500 when API key is not configured", async () => {
+  it("returns 503 when API key is not configured", async () => {
     delete process.env.GLM_API_KEY;
 
     const response = await POST(
@@ -91,7 +91,7 @@ describe("POST /api/transform", () => {
     );
     const data = await response.json();
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(503);
     expect(data.error).toBe("GLM APIキーが設定されていません");
   });
 
