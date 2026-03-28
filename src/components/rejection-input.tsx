@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useRef, useCallback, memo, type KeyboardEvent } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  memo,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { tagAnimation, hoverTap } from "@/lib/constants";
 import { MAX_REJECTION_LENGTH } from "@/lib/constants";
@@ -10,6 +17,54 @@ interface RejectionInputProps {
   onSubmit: (rejections: string[]) => void;
   isLoading?: boolean;
 }
+
+interface TagItemProps {
+  item: string;
+  index: number;
+  onRemove: (index: number) => void;
+}
+
+const TagItem = memo(function TagItem({ item, index, onRemove }: TagItemProps) {
+  const handleClick = useCallback(
+    (e: MouseEvent) => {
+      e.stopPropagation();
+      onRemove(index);
+    },
+    [index, onRemove],
+  );
+
+  return (
+    <motion.span
+      key={item}
+      layout
+      {...tagAnimation}
+      className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-3 py-1.5 text-sm text-foreground"
+    >
+      {item}
+      <button
+        type="button"
+        onClick={handleClick}
+        className="ml-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+        aria-label={messages.input.removeItem(item)}
+      >
+        <svg
+          width="8"
+          height="8"
+          viewBox="0 0 8 8"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M1 1l6 6M7 1L1 7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+    </motion.span>
+  );
+});
 
 export const RejectionInput = memo(function RejectionInput({
   onSubmit,
@@ -42,21 +97,32 @@ export const RejectionInput = memo(function RejectionInput({
     setItems((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addItem();
-    }
-    if (e.key === "Backspace" && inputValue === "" && items.length > 0) {
-      removeItem(items.length - 1);
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addItem();
+      }
+      if (e.key === "Backspace" && inputValue === "" && items.length > 0) {
+        removeItem(items.length - 1);
+      }
+    },
+    [addItem, inputValue, items.length, removeItem],
+  );
 
-  const handleSubmit = () => {
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(e.target.value);
+      setHint((prev) => (prev ? null : prev));
+    },
+    [],
+  );
+
+  const handleSubmit = useCallback(() => {
     if (items.length > 0) {
       onSubmit(items);
     }
-  };
+  }, [items, onSubmit]);
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -77,48 +143,19 @@ export const RejectionInput = memo(function RejectionInput({
       >
         <AnimatePresence mode="popLayout">
           {items.map((item, index) => (
-            <motion.span
+            <TagItem
               key={item}
-              layout
-              {...tagAnimation}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-muted px-3 py-1.5 text-sm text-foreground"
-            >
-              {item}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeItem(index);
-                }}
-                className="ml-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-                aria-label={messages.input.removeItem(item)}
-              >
-                <svg
-                  width="8"
-                  height="8"
-                  viewBox="0 0 8 8"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M1 1l6 6M7 1L1 7"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-            </motion.span>
+              item={item}
+              index={index}
+              onRemove={removeItem}
+            />
           ))}
         </AnimatePresence>
         <input
           ref={inputRef}
           type="text"
           value={inputValue}
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            if (hint) setHint(null);
-          }}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={
             items.length === 0

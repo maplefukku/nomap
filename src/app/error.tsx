@@ -5,6 +5,14 @@ import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 
+const errorButtonAnimation = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { delay: 0.2 },
+} as const;
+
+const errorContentAnimation = fadeInUp(12);
+
 export default function Error({
   error,
   reset,
@@ -22,7 +30,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
-      <motion.div {...fadeInUp(12)} className="text-center space-y-3">
+      <motion.div {...errorContentAnimation} className="text-center space-y-3">
         <h2 className="text-2xl font-bold tracking-tight">
           {messages.errorPage.heading}
         </h2>
@@ -31,9 +39,7 @@ export default function Error({
         </p>
       </motion.div>
       <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
+        {...errorButtonAnimation}
         type="button"
         onClick={reset}
         className="rounded-2xl bg-foreground text-background px-6 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"

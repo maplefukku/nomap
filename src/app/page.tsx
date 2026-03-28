@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { Share2, RotateCcw } from "lucide-react";
@@ -12,7 +13,9 @@ import { fade, animations, hoverTap } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 import { useTransformApi } from "@/hooks/use-transform-api";
 
-const LoadingFallback = () => <CardSkeleton />;
+const LoadingFallback = memo(function LoadingFallback() {
+  return <CardSkeleton />;
+});
 
 const ResultCard = dynamic(
   () => import("@/components/result-card").then((m) => m.ResultCard),
@@ -57,6 +60,8 @@ export default function Home() {
     handleShare,
   } = useTransformApi();
 
+  const handleStartInput = useCallback(() => setPhase("input"), [setPhase]);
+
   return (
     <div className="flex min-h-full flex-col bg-background">
       <Header />
@@ -80,7 +85,7 @@ export default function Home() {
               <motion.button
                 {...hoverTap}
                 type="button"
-                onClick={() => setPhase("input")}
+                onClick={handleStartInput}
                 className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label={messages.lp.cta}
               >
