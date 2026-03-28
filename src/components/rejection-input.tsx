@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, type KeyboardEvent } from "react";
+import { useState, useRef, useCallback, memo, type KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { tagAnimation, hoverTap } from "@/lib/constants";
 import { MAX_REJECTION_LENGTH } from "@/lib/constants";
@@ -10,7 +10,10 @@ interface RejectionInputProps {
   isLoading?: boolean;
 }
 
-export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
+export const RejectionInput = memo(function RejectionInput({
+  onSubmit,
+  isLoading,
+}: RejectionInputProps) {
   const [items, setItems] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [hint, setHint] = useState<string | null>(null);
@@ -170,4 +173,4 @@ export function RejectionInput({ onSubmit, isLoading }: RejectionInputProps) {
       </div>
     </div>
   );
-}
+});

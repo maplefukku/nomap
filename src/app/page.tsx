@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { Share2 } from "lucide-react";
@@ -36,8 +36,19 @@ export default function Home() {
   const [phase, setPhase] = useState<Phase>("lp");
   const [results, setResults] = useState<ResultData[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const handleSubmit = useCallback(async (rejections: string[]) => {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setPhase("loading");
     setError(null);
 
@@ -48,8 +59,10 @@ export default function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ rejections }),
+          signal: controller.signal,
         });
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         throw new Error(messages.client.networkError);
       }
 
