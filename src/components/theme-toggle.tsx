@@ -1,19 +1,19 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState, memo } from "react";
+import { useSyncExternalStore, memo } from "react";
 import { motion } from "framer-motion";
 import { messages } from "@/lib/i18n";
 
 const tapAnimation = { scale: 0.92 } as const;
 
+const emptySubscribe = () => () => {};
+const returnTrue = () => true;
+const returnFalse = () => false;
+
 export const ThemeToggle = memo(function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, returnTrue, returnFalse);
 
   if (!mounted) {
     return <div className="h-9 w-9" />;
