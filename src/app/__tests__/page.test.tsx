@@ -6,6 +6,10 @@ import { buildResultData, buildClientAPIResponse } from "@/test/factories";
 
 vi.mock("framer-motion", () => import("@/test/mock-framer-motion"));
 
+vi.mock("sonner", () => ({
+  toast: { error: vi.fn() },
+}));
+
 // Mock next/dynamic to render components synchronously
 vi.mock("next/dynamic", () => ({
   default: (loader: () => Promise<{ default?: unknown } | unknown>) => {
@@ -218,7 +222,7 @@ describe("Home (page.tsx)", () => {
   });
 
   it("シェアボタンでTwitter共有URLを開く", async () => {
-    const mockOpen = vi.fn();
+    const mockOpen = vi.fn().mockReturnValue({ closed: false });
     window.open = mockOpen;
 
     const mockResults = [
@@ -250,6 +254,34 @@ describe("Home (page.tsx)", () => {
       "_blank",
       "noopener,noreferrer",
     );
+  });
+
+  it("ポップアップがブロックされた場合エラートーストを表示する", async () => {
+    const mockOpen = vi.fn().mockReturnValue(null);
+    window.open = mockOpen;
+
+    const mockResults = [
+      buildResultData({
+        direction: "自由な働き方",
+        firstAction: "リモート求人を探す",
+      }),
+    ];
+    mockFetch.mockResolvedValueOnce(buildClientAPIResponse(mockResults));
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    await waitFor(() => {
+      expect(screen.getByText(messages.result.heading)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByLabelText(messages.result.share));
+
+    const { toast } = await import("sonner");
+    expect(toast.error).toHaveBeenCalledWith(messages.client.sharePopupBlocked);
   });
 
   it("resultsが空の場合シェアボタンで何も開かない", async () => {
@@ -351,5 +383,35 @@ describe("Home (page.tsx)", () => {
         messages.client.networkError,
       );
     });
+  });
+
+  it("リトライボタンでlastRejectionsを使って再送信する", async () => {
+    // 1回目: エラーにする
+    mockFetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    // 2回目: 成功させる
+    const mockResults = [buildResultData()];
+    mockFetch.mockResolvedValueOnce(buildClientAPIResponse(mockResults));
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    // エラー表示を待つ
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+
+    // リトライボタンをクリック
+    await user.click(screen.getByText(messages.client.retry));
+
+    // 成功して結果画面に遷移する
+    await waitFor(() => {
+      expect(screen.getByText(messages.result.heading)).toBeInTheDocument();
+    });
+
+    // fetchが2回呼ばれたことを確認（初回 + リトライ）
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 });

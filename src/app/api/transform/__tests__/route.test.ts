@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { POST } from "../route";
-import { MAX_REJECTIONS, MAX_REJECTION_LENGTH } from "@/lib/constants";
+import { MAX_REJECTIONS, MAX_REJECTION_LENGTH } from "@/lib/constants.server";
 
 // envモジュールをモック
 vi.mock("@/lib/env", () => ({

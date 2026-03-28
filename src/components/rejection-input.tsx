@@ -163,10 +163,8 @@ export const RejectionInput = memo(function RejectionInput({
         >
           {isLoading ? (
             <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="inline-block h-4 w-4 rounded-full border-2 border-current border-t-transparent"
+              <span
+                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
                 aria-hidden="true"
               />
               {messages.input.analyzingEllipsis}

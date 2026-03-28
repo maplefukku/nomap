@@ -3,7 +3,7 @@ import {
   GLM_API_TIMEOUT_MS,
   GLM_MAX_TOKENS,
   GLM_TEMPERATURE,
-} from "@/lib/constants";
+} from "@/lib/constants.server";
 import { serverEnv } from "@/lib/env";
 import { messages } from "@/lib/i18n";
 

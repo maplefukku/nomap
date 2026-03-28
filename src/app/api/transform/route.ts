@@ -5,7 +5,7 @@ import {
   MAX_REJECTION_LENGTH,
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX_REQUESTS,
-} from "@/lib/constants";
+} from "@/lib/constants.server";
 import { serverEnv } from "@/lib/env";
 import { messages } from "@/lib/i18n";
 
