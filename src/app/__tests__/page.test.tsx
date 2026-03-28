@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { messages } from "@/lib/i18n";
@@ -112,7 +112,7 @@ vi.mock("@/components/empty-state", () => ({
 }));
 
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal("fetch", mockFetch);
 
 // Need to import after mocks
 import Home from "../page";
@@ -120,6 +120,10 @@ import Home from "../page";
 describe("Home (page.tsx)", () => {
   beforeEach(() => {
     mockFetch.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("renders LP phase by default", () => {

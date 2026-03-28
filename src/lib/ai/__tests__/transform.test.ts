@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 vi.mock("@/lib/env", () => ({
   serverEnv: {
@@ -11,11 +11,15 @@ vi.mock("@/lib/env", () => ({
 import { transformRejections } from "../transform";
 
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal("fetch", mockFetch);
 
 describe("transformRejections", () => {
   beforeEach(() => {
     mockFetch.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("sends correct request to GLM API", async () => {
@@ -155,14 +159,7 @@ describe("transformRejections", () => {
     );
   });
 
-  it("setTimeoutコールバックがcontroller.abortを呼び出す", async () => {
-    let capturedCallback: (() => void) | undefined;
-    const _originalSetTimeout = globalThis.setTimeout;
-    vi.spyOn(globalThis, "setTimeout").mockImplementation((cb: () => void) => {
-      capturedCallback = cb;
-      return 999 as unknown as ReturnType<typeof setTimeout>;
-    });
-
+  it("fetchにAbortSignalが渡される", async () => {
     const mockResponse = [
       { avoidPattern: "p", direction: "d", firstAction: "a" },
     ];
@@ -175,11 +172,9 @@ describe("transformRejections", () => {
 
     await transformRejections(["残業する"], "test-key");
 
-    // タイムアウトコールバックを手動で実行してカバレッジを確保
-    expect(capturedCallback).toBeDefined();
-    capturedCallback!();
-
-    vi.mocked(globalThis.setTimeout).mockRestore();
+    // fetchにAbortSignalが渡されていることを確認
+    const callArgs = mockFetch.mock.calls[0][1];
+    expect(callArgs.signal).toBeInstanceOf(AbortSignal);
   });
 
   it("配列以外のレスポンスでエラーをスローする", async () => {

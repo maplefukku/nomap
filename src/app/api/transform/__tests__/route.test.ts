@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { POST } from "../route";
 import { MAX_REJECTIONS, MAX_REJECTION_LENGTH } from "@/lib/constants";
 
@@ -39,6 +39,10 @@ describe("POST /api/transform", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.GLM_API_KEY = "test-key";
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("returns results for valid request", async () => {
@@ -254,8 +258,6 @@ describe("POST /api/transform", () => {
       ) as any,
     );
     expect(afterCleanup.status).toBe(200);
-
-    dateNowSpy.mockRestore();
   });
 
   it("uses 'unknown' as IP when x-forwarded-for header is missing", async () => {
@@ -318,8 +320,6 @@ describe("POST /api/transform", () => {
       ) as any,
     );
     expect(response.status).toBe(200);
-
-    dateNowSpy.mockRestore();
   });
 
   it("bodyが配列の場合、invalidRequestエラーを返す", async () => {
