@@ -379,6 +379,23 @@ describe("Home (page.tsx)", () => {
     });
   });
 
+  it("fetchがAbortErrorの場合はエラーを表示しない", async () => {
+    mockFetch.mockImplementationOnce(() => {
+      throw new DOMException("Aborted", "AbortError");
+    });
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    await user.click(screen.getByText(messages.lp.cta));
+    await user.click(screen.getByTestId("submit-btn"));
+
+    // エラーが表示されないことを確認
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+  });
+
   it("shows network error when fetch rejects with non-Error", async () => {
     mockFetch.mockRejectedValueOnce("string error");
 
