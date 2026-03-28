@@ -278,4 +278,17 @@ describe("transformRejections", () => {
       "GLM APIの応答形式が不正です",
     );
   });
+
+  it("response.json()が失敗した場合、parseFailedエラーをthrowする", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => {
+        throw new Error("Invalid JSON");
+      },
+    });
+
+    await expect(transformRejections(["テスト"], "test-key")).rejects.toThrow(
+      "GLM APIの応答をパースできませんでした",
+    );
+  });
 });

@@ -321,4 +321,11 @@ describe("POST /api/transform", () => {
 
     dateNowSpy.mockRestore();
   });
+
+  it("bodyが配列の場合、invalidRequestエラーを返す", async () => {
+    const response = await POST(makeRequest(["item1", "item2"] as any) as any);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.error).toBe("リクエストの形式が不正です");
+  });
 });
