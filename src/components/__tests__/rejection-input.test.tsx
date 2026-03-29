@@ -180,6 +180,28 @@ describe("RejectionInput", () => {
     expect(input).toHaveValue("テスト項目");
   });
 
+  it("IME入力中（compositionStart〜compositionEnd）はEnterでアイテムが追加されない", () => {
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+    fireEvent.change(input, { target: { value: "日本語入力" } });
+
+    // IME変換開始
+    fireEvent.compositionStart(input);
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    // 変換中なのでアイテムは追加されない
+    expect(screen.queryByText("日本語入力")).not.toBeInTheDocument();
+    expect(input).toHaveValue("日本語入力");
+
+    // IME変換確定
+    fireEvent.compositionEnd(input);
+
+    // 確定後はEnterで追加される
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(screen.getByText("日本語入力")).toBeInTheDocument();
+  });
+
   it("changes placeholder after adding items", async () => {
     const user = userEvent.setup();
     render(<RejectionInput onSubmit={vi.fn()} />);
