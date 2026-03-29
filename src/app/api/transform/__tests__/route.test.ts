@@ -301,6 +301,74 @@ describe("POST /api/transform", () => {
     expect(response.status).toBe(200);
   });
 
+  it("TypeErrorの場合、networkカテゴリとしてログ出力される", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockTransformRejections.mockRejectedValueOnce(
+      new TypeError("fetch failed"),
+    );
+
+    const response = await POST(makeRequest({ rejections: ["テスト"] }));
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("変換処理に失敗しました");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[transform]",
+      expect.objectContaining({ category: "network" }),
+    );
+  });
+
+  it("タイムアウトエラーの場合、timeoutカテゴリとしてログ出力される", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockTransformRejections.mockRejectedValueOnce(
+      new Error("GLM APIがタイムアウトしました"),
+    );
+
+    const response = await POST(makeRequest({ rejections: ["テスト"] }));
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("GLM APIがタイムアウトしました");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[transform]",
+      expect.objectContaining({ category: "timeout" }),
+    );
+  });
+
+  it("パース失敗エラーの場合、parseカテゴリとしてログ出力される", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockTransformRejections.mockRejectedValueOnce(
+      new Error("GLM APIの応答をパースできませんでした"),
+    );
+
+    const response = await POST(makeRequest({ rejections: ["テスト"] }));
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("GLM APIの応答をパースできませんでした");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[transform]",
+      expect.objectContaining({ category: "parse" }),
+    );
+  });
+
+  it("不正形式エラーの場合、parseカテゴリとしてログ出力される", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockTransformRejections.mockRejectedValueOnce(
+      new Error("GLM APIの応答形式が不正です"),
+    );
+
+    const response = await POST(makeRequest({ rejections: ["テスト"] }));
+    const data = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(data.error).toBe("GLM APIの応答形式が不正です");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[transform]",
+      expect.objectContaining({ category: "parse" }),
+    );
+  });
+
   it("リクエストボディが配列の場合400を返す", async () => {
     const response = await POST(makeRequest(["item1", "item2"]));
     expect(response.status).toBe(400);
