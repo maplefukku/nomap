@@ -122,6 +122,16 @@ export const RejectionInput = memo(function RejectionInput({
     inputRef.current?.focus();
   }, []);
 
+  const handleContainerKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    },
+    [],
+  );
+
   const handleSubmit = useCallback(() => {
     if (items.length > 0) {
       onSubmit(items);
@@ -142,7 +152,9 @@ export const RejectionInput = memo(function RejectionInput({
       <div
         className="flex min-h-[120px] flex-wrap items-start gap-2 rounded-2xl border border-border bg-card p-4 shadow-sm transition-all focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/20"
         onClick={handleContainerClick}
+        onKeyDown={handleContainerKeyDown}
         role="group"
+        tabIndex={0}
         aria-label={messages.input.groupLabel}
       >
         <AnimatePresence mode="popLayout">

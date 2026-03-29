@@ -94,11 +94,9 @@ export default function Home() {
 
               <div className="mt-12 grid gap-4 sm:grid-cols-3">
                 {LP_FEATURES.map((f) => (
-                  <div
+                  <article
                     key={f.title}
                     className="rounded-2xl border bg-card p-6 text-left shadow-sm transition-shadow hover:shadow-md"
-                    role="group"
-                    aria-label={f.title}
                   >
                     <span className="text-2xl" aria-hidden="true">
                       {f.emoji}
@@ -107,7 +105,7 @@ export default function Home() {
                     <p className="mt-1 text-sm text-muted-foreground">
                       {f.desc}
                     </p>
-                  </div>
+                  </article>
                 ))}
               </div>
             </motion.section>
