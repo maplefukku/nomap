@@ -70,8 +70,7 @@ describe("ErrorBoundary", () => {
   });
 
   it("開発環境でconsole.errorが呼ばれる", () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     try {
       render(
         <ErrorBoundary>
@@ -85,7 +84,7 @@ describe("ErrorBoundary", () => {
       expect(boundaryCall).toBeDefined();
       expect(boundaryCall![1]).toMatchObject({ message: expect.any(String) });
     } finally {
-      process.env.NODE_ENV = originalEnv;
+      vi.unstubAllEnvs();
     }
   });
 });
