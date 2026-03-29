@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { buildGLMResponse } from "@/test/factories";
 
 vi.mock("@/lib/env", () => ({
   serverEnv: {
@@ -37,12 +38,7 @@ describe("transformRejections", () => {
       },
     ];
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     await transformRejections(["残業する"], "test-key");
 
@@ -73,12 +69,7 @@ describe("transformRejections", () => {
       },
     ];
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     const results = await transformRejections(["残業する"], "test-key");
 
@@ -101,12 +92,7 @@ describe("transformRejections", () => {
   });
 
   it("throws on empty response", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: "" } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(""));
 
     await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
       "GLM APIから空の応答が返されました",
@@ -114,12 +100,7 @@ describe("transformRejections", () => {
   });
 
   it("throws on invalid JSON in response", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: "not json" } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse("not json"));
 
     await expect(
       transformRejections(["残業する"], "test-key"),
@@ -159,12 +140,7 @@ describe("transformRejections", () => {
     ];
     mockFetch
       .mockRejectedValueOnce(new TypeError("fetch failed"))
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-        }),
-      });
+      .mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     const results = await transformRejections(["残業する"], "test-key");
     expect(results).toHaveLength(1);
@@ -193,12 +169,7 @@ describe("transformRejections", () => {
     const mockResponse = [
       { avoidPattern: "p", direction: "d", firstAction: "a" },
     ];
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     await transformRejections(["残業する"], "test-key");
 
@@ -208,12 +179,7 @@ describe("transformRejections", () => {
   });
 
   it("配列以外のレスポンスでエラーをスローする", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: '{"key": "value"}' } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse({ key: "value" }));
 
     await expect(transformRejections(["残業する"], "test-key")).rejects.toThrow(
       "GLM APIの応答形式が不正です",
@@ -229,26 +195,14 @@ describe("transformRejections", () => {
       },
     ];
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     const results = await transformRejections(["残業する"], "test-key");
     expect(results[0].esPhrase).toBeUndefined();
   });
 
   it("配列要素がオブジェクトでない場合にinvalidFormatエラーになる", async () => {
-    const mockResponse = ["文字列", 42, null];
-
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(["文字列", 42, null]));
 
     await expect(transformRejections(["テスト"], "test-key")).rejects.toThrow(
       "GLM APIの応答形式が不正です",
@@ -270,12 +224,7 @@ describe("transformRejections", () => {
       },
     ];
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     const results = await transformRejections(["テスト"], "test-key");
 
@@ -292,12 +241,7 @@ describe("transformRejections", () => {
       },
     ];
 
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        choices: [{ message: { content: JSON.stringify(mockResponse) } }],
-      }),
-    });
+    mockFetch.mockResolvedValueOnce(buildGLMResponse(mockResponse));
 
     await expect(transformRejections(["テスト"], "test-key")).rejects.toThrow(
       "GLM APIの応答形式が不正です",

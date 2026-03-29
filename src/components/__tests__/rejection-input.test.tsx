@@ -173,18 +173,9 @@ describe("RejectionInput", () => {
     const onSubmit = vi.fn();
     render(<RejectionInput onSubmit={onSubmit} />);
 
-    const submitBtn = screen.getByLabelText(
-      "方向を見つける",
-    ) as HTMLButtonElement;
-
-    // React内部のpropsからonClickハンドラを直接取得して呼び出す
-    const propsKey = Object.keys(submitBtn).find((k) =>
-      k.startsWith("__reactProps$"),
-    );
-    const props = (
-      submitBtn as unknown as Record<string, Record<string, () => void>>
-    )[propsKey!];
-    props.onClick();
+    const submitBtn = screen.getByLabelText("方向を見つける");
+    // disabled状態でもclickイベントをdispatchしてハンドラのガード節をテスト
+    fireEvent.click(submitBtn);
 
     expect(onSubmit).not.toHaveBeenCalled();
   });

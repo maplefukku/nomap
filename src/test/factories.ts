@@ -32,3 +32,28 @@ export function buildClientAPIResponse(results: ResultData[]): {
     json: async () => ({ results }),
   };
 }
+
+/**
+ * Create a mock GLM API chat completion response (for fetch mock).
+ * Pass the content that the LLM would return in `choices[0].message.content`.
+ */
+export function buildGLMResponse(content: unknown): {
+  ok: true;
+  json: () => Promise<{
+    choices: [{ message: { content: string } }];
+  }>;
+} {
+  return {
+    ok: true,
+    json: async () => ({
+      choices: [
+        {
+          message: {
+            content:
+              typeof content === "string" ? content : JSON.stringify(content),
+          },
+        },
+      ],
+    }),
+  };
+}

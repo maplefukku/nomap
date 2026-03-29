@@ -186,7 +186,11 @@ describe("POST /api/transform", () => {
 
   it("同一IPからの連続リクエストでレート制限（429）を返す", async () => {
     mockTransformRejections.mockResolvedValue([]);
-    const sharedIp = "rate-limit-test-ip";
+    const sharedIp = "rate-limit-test-ip-" + Math.random();
+
+    // Date.nowを固定して、前テストのcleanup状態に影響されないようにする
+    const fixedNow = Date.now();
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(fixedNow);
 
     // Send max requests
     for (let i = 0; i < 10; i++) {
@@ -206,6 +210,8 @@ describe("POST /api/transform", () => {
 
     expect(response.status).toBe(429);
     expect(data.error).toContain("リクエストが多すぎます");
+
+    dateNowSpy.mockRestore();
   });
 
   it("クリーンアップで古いエントリが削除される", async () => {
@@ -222,7 +228,7 @@ describe("POST /api/transform", () => {
     // lastCleanupはモジュールロード時のDate.now()なので、
     // 現在時刻+120s以上にする
     const futureTime = Date.now() + 200_000;
-    const _dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(futureTime);
+    vi.spyOn(Date, "now").mockReturnValue(futureTime);
 
     // 別のIPでリクエスト → クリーンアップが実行される
     const response = await POST(
