@@ -12,7 +12,18 @@ interface TransformApiResponse {
   error?: string;
 }
 
-export function useTransformApi() {
+interface UseTransformApiReturn {
+  readonly phase: Phase;
+  readonly results: ResultData[];
+  readonly error: string | null;
+  readonly setPhase: (phase: Phase) => void;
+  readonly handleSubmit: (rejections: string[]) => Promise<void>;
+  readonly handleRetry: () => void;
+  readonly handleReset: () => void;
+  readonly handleShare: () => void;
+}
+
+export function useTransformApi(): UseTransformApiReturn {
   const [phase, setPhase] = useState<Phase>("lp");
   const [results, setResults] = useState<ResultData[]>([]);
   const [error, setError] = useState<string | null>(null);

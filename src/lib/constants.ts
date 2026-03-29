@@ -16,7 +16,19 @@ export const MAX_REJECTION_LENGTH = 200;
 export const EASE_OUT_QUART = [0.25, 0.46, 0.45, 0.94] as const;
 
 /** Fade-in with upward slide – the most common entry animation */
-export function fadeInUp(y = 12, delay = 0, duration = 0.4) {
+export function fadeInUp(
+  y = 12,
+  delay = 0,
+  duration = 0.4,
+): {
+  readonly initial: { readonly opacity: 0; readonly y: number };
+  readonly animate: { readonly opacity: 1; readonly y: 0 };
+  readonly transition: {
+    readonly duration: number;
+    readonly delay: number;
+    readonly ease: typeof EASE_OUT_QUART;
+  };
+} {
   return {
     initial: { opacity: 0, y },
     animate: { opacity: 1, y: 0 },

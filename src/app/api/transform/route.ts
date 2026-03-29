@@ -5,6 +5,7 @@ import {
   MAX_REJECTION_LENGTH,
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX_REQUESTS,
+  HTTP_STATUS,
 } from "@/lib/constants.server";
 import { serverEnv } from "@/lib/env";
 import { messages } from "@/lib/i18n";
@@ -105,7 +106,7 @@ export async function POST(request: NextRequest) {
     console.error("[transform] GLM_API_KEY is not configured");
     return NextResponse.json(
       { error: messages.api.missingKey },
-      { status: 503 },
+      { status: HTTP_STATUS.SERVICE_UNAVAILABLE },
     );
   }
 
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: messages.validation.rateLimited },
-      { status: 429 },
+      { status: HTTP_STATUS.TOO_MANY_REQUESTS },
     );
   }
 
@@ -128,21 +129,24 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: messages.validation.invalidRequest },
-      { status: 400 },
+      { status: HTTP_STATUS.BAD_REQUEST },
     );
   }
 
   if (typeof body !== "object" || body === null || Array.isArray(body)) {
     return NextResponse.json(
       { error: messages.validation.invalidRequest },
-      { status: 400 },
+      { status: HTTP_STATUS.BAD_REQUEST },
     );
   }
   const { rejections: rawRejections } = body as { rejections?: unknown };
   const validated = sanitizeRejections(rawRejections);
 
   if ("error" in validated) {
-    return NextResponse.json({ error: validated.error }, { status: 400 });
+    return NextResponse.json(
+      { error: validated.error },
+      { status: HTTP_STATUS.BAD_REQUEST },
+    );
   }
 
   try {
@@ -176,7 +180,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: message },
       {
-        status: 502,
+        status: HTTP_STATUS.BAD_GATEWAY,
         headers: {
           "Cache-Control": "no-store",
         },

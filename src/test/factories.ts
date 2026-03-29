@@ -23,7 +23,10 @@ export function buildResultData(
 /**
  * Create a mock client-side API response (from /api/transform).
  */
-export function buildClientAPIResponse(results: ResultData[]) {
+export function buildClientAPIResponse(results: ResultData[]): {
+  ok: true;
+  json: () => Promise<{ results: ResultData[] }>;
+} {
   return {
     ok: true,
     json: async () => ({ results }),

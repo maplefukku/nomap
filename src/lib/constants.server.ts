@@ -36,6 +36,16 @@ export const MAX_REJECTIONS = envInt("MAX_REJECTIONS", 20);
 export const MAX_REJECTION_LENGTH = envInt("MAX_REJECTION_LENGTH", 200);
 
 // ---------------------------------------------------------------------------
+// HTTP status codes
+// ---------------------------------------------------------------------------
+export const HTTP_STATUS = {
+  BAD_REQUEST: 400,
+  TOO_MANY_REQUESTS: 429,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Rate limiting
 // ---------------------------------------------------------------------------
 export const RATE_LIMIT_WINDOW_MS = envInt("RATE_LIMIT_WINDOW_MS", 60_000);
