@@ -81,7 +81,7 @@ export const ResultCard = memo(function ResultCard({
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {messages.resultCard.values}
             </span>
-            <p className="text-sm leading-relaxed text-foreground/80">
+            <p className="break-words text-sm leading-relaxed text-foreground/80">
               {result.values}
             </p>
           </div>

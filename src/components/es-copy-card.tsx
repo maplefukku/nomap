@@ -32,7 +32,7 @@ export const ESCopyCard = memo(function ESCopyCard({
         {messages.esCopy.label}
       </p>
       <div className="mt-2 flex items-start justify-between gap-3">
-        <p className="text-sm font-medium leading-relaxed text-foreground">
+        <p className="min-w-0 break-words text-sm font-medium leading-relaxed text-foreground">
           &ldquo;{phrase}&rdquo;
         </p>
         <button

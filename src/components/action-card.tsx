@@ -20,7 +20,7 @@ export const ActionCard = memo(function ActionCard({
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
         {messages.actionCard.label}
       </p>
-      <p className="mt-2 text-base text-foreground">{action}</p>
+      <p className="mt-2 break-words text-base text-foreground">{action}</p>
     </motion.div>
   );
 });

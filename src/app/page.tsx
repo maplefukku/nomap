@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { Share2, RotateCcw } from "lucide-react";
@@ -60,6 +60,14 @@ export default function Home() {
     handleShare,
   } = useTransformApi();
 
+  const resultHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (phase === "result") {
+      resultHeadingRef.current?.focus();
+    }
+  }, [phase]);
+
   const handleStartInput = useCallback(() => setPhase("input"), [setPhase]);
 
   return (
@@ -115,7 +123,11 @@ export default function Home() {
             <motion.div key="results" {...fade} className="flex flex-col gap-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                  <h2
+                    ref={resultHeadingRef}
+                    tabIndex={-1}
+                    className="text-2xl font-semibold tracking-tight text-foreground outline-none"
+                  >
                     {messages.result.heading}
                   </h2>
                   <p className="text-sm text-muted-foreground">

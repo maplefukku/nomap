@@ -74,6 +74,7 @@ export const RejectionInput = memo(function RejectionInput({
   const [inputValue, setInputValue] = useState("");
   const [hint, setHint] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const composingRef = useRef(false);
 
   const addItem = useCallback(() => {
     const trimmed = inputValue.trim();
@@ -99,6 +100,7 @@ export const RejectionInput = memo(function RejectionInput({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
+      if (composingRef.current) return;
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         addItem();
@@ -109,6 +111,14 @@ export const RejectionInput = memo(function RejectionInput({
     },
     [addItem, inputValue, items.length, removeItem],
   );
+
+  const handleCompositionStart = useCallback(() => {
+    composingRef.current = true;
+  }, []);
+
+  const handleCompositionEnd = useCallback(() => {
+    composingRef.current = false;
+  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,6 +181,8 @@ export const RejectionInput = memo(function RejectionInput({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
           placeholder={
             items.length === 0
               ? messages.input.placeholderEmpty
