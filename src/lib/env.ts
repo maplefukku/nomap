@@ -31,8 +31,24 @@ function requiredInProduction(
   return value;
 }
 
+/**
+ * 本番環境で必須の環境変数を取得する。
+ * ビルド時ではなく実際のリクエスト時に検証するため、
+ * 遅延評価のゲッターとして使用する。
+ */
+function assertEnv(name: string): string {
+  const value = process.env[name];
+  if (!value && process.env.NODE_ENV === "production") {
+    throw new Error(`[env] 必須環境変数が未設定: ${name}`);
+  }
+  return value ?? "";
+}
+
 export const serverEnv: ServerEnv = {
-  GLM_API_KEY: requiredInProduction(process.env.GLM_API_KEY, "GLM_API_KEY"),
+  // ビルド時は未設定でも許容し、リクエスト時に厳格検証するゲッター
+  get GLM_API_KEY() {
+    return assertEnv("GLM_API_KEY") || undefined;
+  },
   GLM_BASE_URL:
     process.env.GLM_BASE_URL || "https://api.z.ai/api/coding/paas/v4/",
   GLM_MODEL: process.env.GLM_MODEL || "glm-4.7",

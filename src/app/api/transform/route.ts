@@ -109,8 +109,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // x-real-ip はリバースプロキシ（Vercel等）が設定する検証済みヘッダー。
+  // x-forwarded-for はクライアントが偽装可能なためフォールバックとして使用。
   const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
   if (isRateLimited(ip)) {
     return NextResponse.json(
       { error: messages.validation.rateLimited },
