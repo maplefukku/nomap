@@ -160,9 +160,22 @@ export async function POST(request: NextRequest) {
       },
     );
   } catch (err) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    const errorCategory =
+      err instanceof TypeError
+        ? "network"
+        : errMessage === messages.api.timeout
+          ? "timeout"
+          : errMessage === messages.api.parseFailed ||
+              errMessage === messages.api.invalidFormat
+            ? "parse"
+            : errMessage.startsWith("GLM APIエラー（ステータス:")
+              ? "api_status"
+              : "unknown";
     console.error("[transform]", {
       error: "LLM call failed",
-      message: err instanceof Error ? err.message : String(err),
+      category: errorCategory,
+      message: errMessage,
     });
     // セキュリティ: 内部エラー詳細の露出を防ぐため、ホワイトリストに一致する
     // メッセージのみクライアントに返し、それ以外は汎用メッセージに置換する

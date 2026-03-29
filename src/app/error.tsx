@@ -24,6 +24,8 @@ export default function Error({
     console.error("[app-error]", {
       message: error.message,
       digest: error.digest,
+      path:
+        typeof window !== "undefined" ? window.location.pathname : undefined,
       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }, [error]);

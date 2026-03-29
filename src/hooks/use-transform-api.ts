@@ -5,21 +5,39 @@ import { toast } from "sonner";
 import type { ResultData } from "@/components/result-card";
 import { messages } from "@/lib/i18n";
 
+/**
+ * 画面の状態遷移を表すフェーズ。
+ *
+ * - `"lp"` → ランディングページ（初回表示）
+ * - `"input"` → 拒否項目の入力画面
+ * - `"loading"` → API呼び出し中
+ * - `"result"` → 分析結果の表示
+ */
 type Phase = "lp" | "input" | "loading" | "result";
 
+/** `/api/transform` のレスポンス形状。成功時は `results`、失敗時は `error` が設定される */
 interface TransformApiResponse {
   results?: ResultData[];
   error?: string;
 }
 
+/** {@link useTransformApi} が返す状態とハンドラ一式 */
 interface UseTransformApiReturn {
+  /** 現在の画面フェーズ */
   readonly phase: Phase;
+  /** 最後に取得した分析結果（未取得時は空配列） */
   readonly results: ResultData[];
+  /** 直近のエラーメッセージ（エラーなしの場合null） */
   readonly error: string | null;
+  /** フェーズを直接切り替える（LP→inputの遷移等に使用） */
   readonly setPhase: (phase: Phase) => void;
+  /** 拒否項目を送信しAPI呼び出しを実行する */
   readonly handleSubmit: (rejections: string[]) => Promise<void>;
+  /** 直前の入力内容で再送信する */
   readonly handleRetry: () => void;
+  /** 入力画面に戻し結果をクリアする */
   readonly handleReset: () => void;
+  /** 結果をTwitterでシェアする */
   readonly handleShare: () => void;
 }
 

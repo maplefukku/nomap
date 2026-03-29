@@ -9,11 +9,14 @@ import {
 import { serverEnv } from "@/lib/env";
 import { messages } from "@/lib/i18n";
 
+/** GLM API (OpenAI互換) に送信するチャットメッセージ */
 interface ChatMessage {
+  /** system: LLMへの指示, user: ユーザー入力, assistant: LLMの応答 */
   role: "system" | "user" | "assistant";
   content: string;
 }
 
+/** GLM APIのChat Completionsレスポンス（使用フィールドのみ定義） */
 interface GLMResponse {
   choices: Array<{
     message: {
