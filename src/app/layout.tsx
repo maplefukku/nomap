@@ -24,6 +24,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -37,11 +41,20 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "NoMap",
     url: SITE_URL,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: messages.meta.title,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: messages.meta.title,
     description: messages.meta.description,
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,

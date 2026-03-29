@@ -67,7 +67,7 @@ export default function Home() {
       <Header />
       <main
         id="main-content"
-        className="mx-auto flex w-full max-w-lg flex-1 flex-col px-6 py-10 md:max-w-2xl"
+        className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-8 sm:px-6 sm:py-10 md:max-w-2xl"
       >
         <AnimatePresence mode="wait">
           {phase === "lp" && (
@@ -76,7 +76,7 @@ export default function Home() {
               {...fade}
               className="flex min-h-[70dvh] flex-col items-center justify-center px-4 text-center"
             >
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl whitespace-pre-line">
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl whitespace-pre-line">
                 {messages.lp.heading}
               </h1>
               <p className="mt-4 max-w-sm text-lg text-muted-foreground md:max-w-md">
@@ -129,7 +129,7 @@ export default function Home() {
                     {...hoverTap}
                     type="button"
                     onClick={handleShare}
-                    className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                    className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={messages.result.share}
                   >
                     <Share2 className="h-4 w-4" aria-hidden="true" />
@@ -139,7 +139,7 @@ export default function Home() {
                     {...hoverTap}
                     type="button"
                     onClick={handleReset}
-                    className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                    className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     aria-label={messages.result.reset}
                   >
                     {messages.result.reset}
@@ -182,7 +182,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={handleRetry}
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50"
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     >
                       <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                       {messages.client.retry}
