@@ -149,17 +149,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const requestStart = performance.now();
   try {
     const results = await transformRejections(validated.rejections, apiKey);
+    const durationMs = Math.round(performance.now() - requestStart);
+    console.info("[transform]", {
+      event: "success",
+      ip,
+      durationMs,
+      rejectionsCount: validated.rejections.length,
+      resultCount: results.length,
+    });
     return NextResponse.json(
       { results },
       {
         headers: {
           "Cache-Control": "private, no-store",
+          "Server-Timing": `transform;dur=${durationMs}`,
         },
       },
     );
   } catch (err) {
+    const durationMs = Math.round(performance.now() - requestStart);
     const errMessage = err instanceof Error ? err.message : String(err);
     const errorCategory =
       err instanceof TypeError
@@ -176,6 +187,7 @@ export async function POST(request: NextRequest) {
       error: "LLM call failed",
       category: errorCategory,
       message: errMessage,
+      durationMs,
     });
     // セキュリティ: 内部エラー詳細の露出を防ぐため、ホワイトリストに一致する
     // メッセージのみクライアントに返し、それ以外は汎用メッセージに置換する
@@ -191,7 +203,7 @@ export async function POST(request: NextRequest) {
       safeMessages.includes(rawMessage);
     const message = isSafe ? rawMessage : messages.api.transformFailed;
     return NextResponse.json(
-      { error: message },
+      { error: message, category: errorCategory },
       {
         status: HTTP_STATUS.BAD_GATEWAY,
         headers: {

@@ -6,28 +6,64 @@
 // client-side JavaScript.
 // ---------------------------------------------------------------------------
 
-function envInt(key: string, fallback: number): number {
+function envInt(key: string, fallback: number, min?: number): number {
   const v = process.env[key];
   if (v === undefined) return fallback;
   const n = Number(v);
-  return Number.isFinite(n) ? n : fallback;
+  if (!Number.isFinite(n)) {
+    console.warn("[constants]", {
+      warning: "invalid integer, using fallback",
+      key,
+      value: v,
+      fallback,
+    });
+    return fallback;
+  }
+  if (min !== undefined && n < min) {
+    console.warn("[constants]", {
+      warning: "value below minimum, clamped",
+      key,
+      value: n,
+      min,
+    });
+    return min;
+  }
+  return n;
 }
 
-function envFloat(key: string, fallback: number): number {
+function envFloat(key: string, fallback: number, min?: number): number {
   const v = process.env[key];
   if (v === undefined) return fallback;
   const n = parseFloat(v);
-  return Number.isFinite(n) ? n : fallback;
+  if (!Number.isFinite(n)) {
+    console.warn("[constants]", {
+      warning: "invalid float, using fallback",
+      key,
+      value: v,
+      fallback,
+    });
+    return fallback;
+  }
+  if (min !== undefined && n < min) {
+    console.warn("[constants]", {
+      warning: "value below minimum, clamped",
+      key,
+      value: n,
+      min,
+    });
+    return min;
+  }
+  return n;
 }
 
 // ---------------------------------------------------------------------------
 // API settings
 // ---------------------------------------------------------------------------
-export const GLM_API_TIMEOUT_MS = envInt("GLM_API_TIMEOUT_MS", 30_000);
-export const GLM_MAX_TOKENS = envInt("GLM_MAX_TOKENS", 2000);
-export const GLM_TEMPERATURE = envFloat("GLM_TEMPERATURE", 0.7);
-export const GLM_RETRY_COUNT = envInt("GLM_RETRY_COUNT", 1);
-export const GLM_RETRY_DELAY_MS = envInt("GLM_RETRY_DELAY_MS", 1000);
+export const GLM_API_TIMEOUT_MS = envInt("GLM_API_TIMEOUT_MS", 30_000, 1000);
+export const GLM_MAX_TOKENS = envInt("GLM_MAX_TOKENS", 2000, 1);
+export const GLM_TEMPERATURE = envFloat("GLM_TEMPERATURE", 0.7, 0);
+export const GLM_RETRY_COUNT = envInt("GLM_RETRY_COUNT", 1, 0);
+export const GLM_RETRY_DELAY_MS = envInt("GLM_RETRY_DELAY_MS", 1000, 0);
 
 // ---------------------------------------------------------------------------
 // Input validation limits
@@ -48,9 +84,14 @@ export const HTTP_STATUS = {
 // ---------------------------------------------------------------------------
 // Rate limiting
 // ---------------------------------------------------------------------------
-export const RATE_LIMIT_WINDOW_MS = envInt("RATE_LIMIT_WINDOW_MS", 60_000);
-export const RATE_LIMIT_MAX_REQUESTS = envInt("RATE_LIMIT_MAX_REQUESTS", 10);
+export const RATE_LIMIT_WINDOW_MS = envInt(
+  "RATE_LIMIT_WINDOW_MS",
+  60_000,
+  1000,
+);
+export const RATE_LIMIT_MAX_REQUESTS = envInt("RATE_LIMIT_MAX_REQUESTS", 10, 1);
 export const RATE_LIMIT_CLEANUP_INTERVAL_MS = envInt(
   "RATE_LIMIT_CLEANUP_INTERVAL_MS",
   60_000,
+  1000,
 );

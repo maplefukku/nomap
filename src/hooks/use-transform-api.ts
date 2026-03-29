@@ -115,9 +115,10 @@ export function useTransformApi(): UseTransformApiReturn {
       setResults(data.results);
       setPhase("result");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : messages.client.unexpectedError,
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : messages.client.unexpectedError;
+      setError(errorMessage);
+      toast.error(errorMessage);
       setPhase("input");
     }
   }, []);

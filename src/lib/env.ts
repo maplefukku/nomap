@@ -44,13 +44,41 @@ function assertEnv(name: string): string {
   return value ?? "";
 }
 
+/** URL形式を検証し、末尾スラッシュを正規化する */
+function validateBaseURL(raw: string, name: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    console.error("[env]", {
+      error: "invalid URL format",
+      name,
+      value: raw,
+    });
+    // フォールバックとしてデフォルトURLを返す
+    return "https://api.z.ai/api/coding/paas/v4/";
+  }
+  if (url.protocol !== "https:" && process.env.NODE_ENV === "production") {
+    console.warn("[env]", {
+      warning: "non-HTTPS URL in production",
+      name,
+      protocol: url.protocol,
+    });
+  }
+  // 末尾スラッシュを保証（パス結合時の不具合を防止）
+  const normalized = url.toString();
+  return normalized.endsWith("/") ? normalized : normalized + "/";
+}
+
 export const serverEnv: ServerEnv = {
   // ビルド時は未設定でも許容し、リクエスト時に厳格検証するゲッター
   get GLM_API_KEY() {
     return assertEnv("GLM_API_KEY") || undefined;
   },
-  GLM_BASE_URL:
+  GLM_BASE_URL: validateBaseURL(
     process.env.GLM_BASE_URL || "https://api.z.ai/api/coding/paas/v4/",
+    "GLM_BASE_URL",
+  ),
   GLM_MODEL: process.env.GLM_MODEL || "glm-4.7",
 };
 

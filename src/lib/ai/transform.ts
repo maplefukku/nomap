@@ -163,12 +163,21 @@ export async function transformRejections(
     },
   ];
 
+  const totalStart = performance.now();
   let lastError: unknown;
   for (let attempt = 0; attempt <= GLM_RETRY_COUNT; attempt++) {
     try {
+      const fetchStart = performance.now();
       const response = await fetchGLMCompletion(chatMessages, apiKey);
+      const fetchDuration = Math.round(performance.now() - fetchStart);
 
       if (!response.ok) {
+        console.warn("[glm]", {
+          event: "api_error",
+          status: response.status,
+          attempt,
+          durationMs: fetchDuration,
+        });
         throw new Error(messages.api.statusError(response.status));
       }
 
@@ -180,12 +189,32 @@ export async function transformRejections(
       }
 
       const content = extractContent(data);
-      return parseResultsFromContent(content);
+      const results = parseResultsFromContent(content);
+      const totalDuration = Math.round(performance.now() - totalStart);
+      console.info("[glm]", {
+        event: "success",
+        attempt,
+        fetchMs: fetchDuration,
+        totalMs: totalDuration,
+        resultCount: results.length,
+      });
+      return results;
     } catch (err) {
       lastError = err;
       const canRetry = attempt < GLM_RETRY_COUNT && isTransientError(err);
-      if (!canRetry) throw err;
-      await new Promise((r) => setTimeout(r, GLM_RETRY_DELAY_MS));
+      if (!canRetry) {
+        const totalDuration = Math.round(performance.now() - totalStart);
+        console.warn("[glm]", {
+          event: "failure",
+          attempt,
+          totalMs: totalDuration,
+          error: err instanceof Error ? err.message : String(err),
+        });
+        throw err;
+      }
+      // エクスポネンシャルバックオフ: attempt 0 → 1x, attempt 1 → 2x, ...
+      const backoff = GLM_RETRY_DELAY_MS * (attempt + 1);
+      await new Promise((r) => setTimeout(r, backoff));
     }
   }
   throw lastError;
