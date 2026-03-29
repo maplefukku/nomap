@@ -5,6 +5,7 @@ import {
   MAX_REJECTION_LENGTH,
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX_REQUESTS,
+  RATE_LIMIT_CLEANUP_INTERVAL_MS,
   HTTP_STATUS,
 } from "@/lib/constants.server";
 import { serverEnv } from "@/lib/env";
@@ -13,13 +14,12 @@ import { messages } from "@/lib/i18n";
 /** IPごとのリクエストタイムスタンプを保持するインメモリストア */
 const requestLog = new Map<string, number[]>();
 let lastCleanup = Date.now();
-const CLEANUP_INTERVAL_MS = 60_000;
 
 /**
  * スライディングウィンドウ方式のIPベースレートリミッター。
  *
  * RATE_LIMIT_WINDOW_MS 内のリクエスト数が RATE_LIMIT_MAX_REQUESTS を超えると
- * true を返す。CLEANUP_INTERVAL_MS ごとに古いエントリを削除し、
+ * true を返す。RATE_LIMIT_CLEANUP_INTERVAL_MS ごとに古いエントリを削除し、
  * Map の無制限な肥大化を防止する。
  *
  * @param ip - クライアントのIPアドレス
@@ -34,7 +34,7 @@ function isRateLimited(ip: string): boolean {
   const now = Date.now();
 
   // Periodically purge stale entries to prevent unbounded Map growth
-  if (now - lastCleanup > CLEANUP_INTERVAL_MS) {
+  if (now - lastCleanup > RATE_LIMIT_CLEANUP_INTERVAL_MS) {
     for (const [key, timestamps] of requestLog) {
       const recent = filterRecent(timestamps, now);
       if (recent.length === 0) {
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
   const apiKey = serverEnv.GLM_API_KEY;
 
   if (!apiKey) {
-    console.error("[transform] GLM_API_KEY is not configured");
+    console.error("[transform]", { error: "GLM_API_KEY is not configured" });
     return NextResponse.json(
       { error: messages.api.missingKey },
       { status: HTTP_STATUS.SERVICE_UNAVAILABLE },
@@ -160,10 +160,10 @@ export async function POST(request: NextRequest) {
       },
     );
   } catch (err) {
-    console.error(
-      "[transform] LLM call failed:",
-      err instanceof Error ? err.message : err,
-    );
+    console.error("[transform]", {
+      error: "LLM call failed",
+      message: err instanceof Error ? err.message : String(err),
+    });
     // セキュリティ: 内部エラー詳細の露出を防ぐため、ホワイトリストに一致する
     // メッセージのみクライアントに返し、それ以外は汎用メッセージに置換する
     const safeMessages: string[] = [

@@ -50,3 +50,7 @@ export const HTTP_STATUS = {
 // ---------------------------------------------------------------------------
 export const RATE_LIMIT_WINDOW_MS = envInt("RATE_LIMIT_WINDOW_MS", 60_000);
 export const RATE_LIMIT_MAX_REQUESTS = envInt("RATE_LIMIT_MAX_REQUESTS", 10);
+export const RATE_LIMIT_CLEANUP_INTERVAL_MS = envInt(
+  "RATE_LIMIT_CLEANUP_INTERVAL_MS",
+  60_000,
+);

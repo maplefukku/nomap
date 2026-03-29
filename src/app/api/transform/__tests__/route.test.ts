@@ -48,7 +48,7 @@ describe("POST /api/transform", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns results for valid request", async () => {
+  it("正常なリクエストで結果を返す", async () => {
     const mockResults = [
       {
         avoidPattern: "パターン",
@@ -68,7 +68,7 @@ describe("POST /api/transform", () => {
     expect(data.results[0].avoidPattern).toBe("パターン");
   });
 
-  it("returns 400 for empty rejections array", async () => {
+  it("空の拒否リストで400を返す", async () => {
     const response = await POST(makeRequest({ rejections: [] }));
     const data = await response.json();
 
@@ -76,7 +76,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("拒否リストが空です");
   });
 
-  it("returns 400 for missing rejections", async () => {
+  it("rejectionsフィールド未指定で400を返す", async () => {
     const response = await POST(makeRequest({}));
     const data = await response.json();
 
@@ -84,7 +84,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("拒否リストが空です");
   });
 
-  it("returns 503 when API key is not configured", async () => {
+  it("APIキー未設定で503を返す", async () => {
     delete process.env.GLM_API_KEY;
 
     const response = await POST(makeRequest({ rejections: ["残業する"] }));
@@ -94,7 +94,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("GLM APIキーが設定されていません");
   });
 
-  it("returns 400 for invalid JSON", async () => {
+  it("不正なJSONリクエストで400を返す", async () => {
     const request = new NextRequest("http://localhost/api/transform", {
       method: "POST",
       headers: {
@@ -111,7 +111,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("リクエストの形式が不正です");
   });
 
-  it("returns 502 when transformRejections throws an error", async () => {
+  it("transformRejectionsの例外時に汎用エラーメッセージで502を返す", async () => {
     mockTransformRejections.mockRejectedValueOnce(new Error("API error"));
 
     const response = await POST(makeRequest({ rejections: ["残業する"] }));
@@ -133,7 +133,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("GLM APIエラー（ステータス: 503）");
   });
 
-  it("calls transformRejections with correct parameters", async () => {
+  it("transformRejectionsに正しい引数を渡す", async () => {
     process.env.GLM_API_KEY = "my-api-key";
     mockTransformRejections.mockResolvedValueOnce([]);
 
@@ -145,7 +145,7 @@ describe("POST /api/transform", () => {
     );
   });
 
-  it("returns 400 when rejections contain non-string items", async () => {
+  it("拒否項目に文字列以外が含まれる場合400を返す", async () => {
     const response = await POST(makeRequest({ rejections: [123, true] }));
     const data = await response.json();
 
@@ -153,7 +153,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("拒否項目は文字列で指定してください");
   });
 
-  it("returns 400 when rejections exceed max count", async () => {
+  it("拒否項目数が上限を超えた場合400を返す", async () => {
     const tooMany = Array.from(
       { length: MAX_REJECTIONS + 1 },
       (_, i) => `項目${i}`,
@@ -166,7 +166,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toContain(`${MAX_REJECTIONS}`);
   });
 
-  it("returns 400 when a rejection exceeds max length", async () => {
+  it("拒否項目の文字数が上限を超えた場合400を返す", async () => {
     const longItem = "あ".repeat(MAX_REJECTION_LENGTH + 1);
 
     const response = await POST(makeRequest({ rejections: [longItem] }));
@@ -176,7 +176,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toContain(`${MAX_REJECTION_LENGTH}`);
   });
 
-  it("trims whitespace-only rejections and returns 400 if all empty", async () => {
+  it("空白のみの拒否項目を除外し、全て空なら400を返す", async () => {
     const response = await POST(makeRequest({ rejections: ["  ", "\t", ""] }));
     const data = await response.json();
 
@@ -184,7 +184,7 @@ describe("POST /api/transform", () => {
     expect(data.error).toBe("拒否リストが空です");
   });
 
-  it("returns 429 when rate limited", async () => {
+  it("同一IPからの連続リクエストでレート制限（429）を返す", async () => {
     mockTransformRejections.mockResolvedValue([]);
     const sharedIp = "rate-limit-test-ip";
 
@@ -242,7 +242,7 @@ describe("POST /api/transform", () => {
     expect(afterCleanup.status).toBe(200);
   });
 
-  it("uses 'unknown' as IP when x-forwarded-for header is missing", async () => {
+  it("IPヘッダー未設定時にフォールバックIPを使用する", async () => {
     mockTransformRejections.mockResolvedValueOnce([]);
 
     const request = new NextRequest("http://localhost/api/transform", {
@@ -255,7 +255,7 @@ describe("POST /api/transform", () => {
     expect(response.status).toBe(200);
   });
 
-  it("returns fallback message when non-Error is thrown", async () => {
+  it("Error以外の例外時に汎用エラーメッセージで502を返す", async () => {
     mockTransformRejections.mockRejectedValueOnce("string error");
 
     const response = await POST(makeRequest({ rejections: ["テスト"] }));
@@ -301,7 +301,7 @@ describe("POST /api/transform", () => {
     expect(response.status).toBe(200);
   });
 
-  it("bodyが配列の場合、invalidRequestエラーを返す", async () => {
+  it("リクエストボディが配列の場合400を返す", async () => {
     const response = await POST(makeRequest(["item1", "item2"]));
     expect(response.status).toBe(400);
     const data = await response.json();

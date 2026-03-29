@@ -34,10 +34,10 @@ export async function updateSession(request: NextRequest) {
   } catch (err) {
     // Auth fetch failure should not block the request –
     // the user will simply be treated as unauthenticated.
-    console.warn(
-      "[middleware] auth.getUser failed:",
-      err instanceof Error ? err.message : err,
-    );
+    console.warn("[middleware]", {
+      error: "auth.getUser failed",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 
   return supabaseResponse;

@@ -26,7 +26,7 @@ function requiredInProduction(
     !warnedKeys.has(name)
   ) {
     warnedKeys.add(name);
-    console.warn(`[env] missing required variable: ${name}`);
+    console.warn("[env]", { error: "missing required variable", name });
   }
   return value;
 }
