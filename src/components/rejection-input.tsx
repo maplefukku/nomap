@@ -118,6 +118,10 @@ export const RejectionInput = memo(function RejectionInput({
     [],
   );
 
+  const handleContainerClick = useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+
   const handleSubmit = useCallback(() => {
     if (items.length > 0) {
       onSubmit(items);
@@ -137,7 +141,7 @@ export const RejectionInput = memo(function RejectionInput({
 
       <div
         className="flex min-h-[120px] flex-wrap items-start gap-2 rounded-2xl border border-border bg-card p-4 shadow-sm transition-all focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/20"
-        onClick={() => inputRef.current?.focus()}
+        onClick={handleContainerClick}
         role="group"
         aria-label={messages.input.groupLabel}
       >

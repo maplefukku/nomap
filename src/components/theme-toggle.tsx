@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useSyncExternalStore, memo } from "react";
+import { useSyncExternalStore, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { messages } from "@/lib/i18n";
 
@@ -15,6 +15,10 @@ export const ThemeToggle = memo(function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(emptySubscribe, returnTrue, returnFalse);
 
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
+
   if (!mounted) {
     return <div className="h-9 w-9" />;
   }
@@ -24,7 +28,7 @@ export const ThemeToggle = memo(function ThemeToggle() {
   return (
     <motion.button
       whileTap={tapAnimation}
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggleTheme}
       type="button"
       className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
       aria-label={isDark ? messages.theme.toLight : messages.theme.toDark}

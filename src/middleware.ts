@@ -2,6 +2,10 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  // API routeではセッション更新不要（認証を使わない）のでスキップ
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return;
+  }
   return await updateSession(request);
 }
 
