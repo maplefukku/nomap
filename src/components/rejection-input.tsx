@@ -99,7 +99,7 @@ export const RejectionInput = memo(function RejectionInput({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         addItem();
       }
@@ -133,9 +133,7 @@ export const RejectionInput = memo(function RejectionInput({
   );
 
   const handleSubmit = useCallback(() => {
-    if (items.length > 0) {
-      onSubmit(items);
-    }
+    onSubmit(items);
   }, [items, onSubmit]);
 
   return (

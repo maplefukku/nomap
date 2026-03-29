@@ -169,15 +169,15 @@ describe("RejectionInput", () => {
     expect(screen.getByText("分析中...")).toBeInTheDocument();
   });
 
-  it("handleSubmitはアイテムが0件の場合onSubmitを呼ばない", () => {
-    const onSubmit = vi.fn();
-    render(<RejectionInput onSubmit={onSubmit} />);
+  it("Shift+Enterではアイテムが追加されない", () => {
+    render(<RejectionInput onSubmit={vi.fn()} />);
 
-    const submitBtn = screen.getByLabelText("方向を見つける");
-    // disabled状態でもclickイベントをdispatchしてハンドラのガード節をテスト
-    fireEvent.click(submitBtn);
+    const input = screen.getByLabelText("拒否項目を入力");
+    fireEvent.change(input, { target: { value: "テスト項目" } });
+    fireEvent.keyDown(input, { key: "Enter", shiftKey: true });
 
-    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.queryByText("テスト項目")).not.toBeInTheDocument();
+    expect(input).toHaveValue("テスト項目");
   });
 
   it("changes placeholder after adding items", async () => {
