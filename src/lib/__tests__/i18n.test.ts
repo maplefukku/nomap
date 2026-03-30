@@ -1,12 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  LOCALE_MAP,
-  LOCALE,
-  LOCALE_SHORT,
-  messages,
-  type SupportedLocale,
-  type LocaleShort,
-} from "../i18n";
+import { LOCALE_MAP, LOCALE, LOCALE_SHORT, messages } from "../i18n";
 
 describe("i18n - ロケール設定", () => {
   it("LOCALE_MAPが全ロケールを含む", () => {
