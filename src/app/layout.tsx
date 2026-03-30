@@ -14,7 +14,7 @@ const inter = Inter({
 const notoSansJP = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "700"],
 });
 
 const SITE_URL =
@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: messages.meta.title,
   description: messages.meta.description,
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: messages.meta.title,
     description: messages.meta.description,
@@ -59,6 +62,17 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/icon-192.png",
   },
 };
 
@@ -74,6 +88,26 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "NoMap",
+              url: SITE_URL,
+              description: messages.meta.description,
+              applicationCategory: "LifestyleApplication",
+              operatingSystem: "All",
+              inLanguage: "ja",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "JPY",
+              },
+            }),
+          }}
+        />
         <a href="#main-content" className="skip-link">
           {messages.layout.skipToMain}
         </a>
