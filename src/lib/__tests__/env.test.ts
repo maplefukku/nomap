@@ -51,7 +51,7 @@ describe("env - requiredInProduction / assertEnv / validateBaseURL", () => {
   });
 
   it("本番環境でHTTP URLを使用すると警告が出る", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     process.env.GLM_BASE_URL = "http://example.com/api/";
     const { serverEnv } = await import("../env");
     expect(serverEnv.GLM_BASE_URL).toBe("http://example.com/api/");
@@ -62,7 +62,7 @@ describe("env - requiredInProduction / assertEnv / validateBaseURL", () => {
   });
 
   it("開発環境ではHTTP URLでも警告が出ない", async () => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     process.env.GLM_BASE_URL = "http://localhost:3000/api/";
     const { serverEnv } = await import("../env");
     expect(serverEnv.GLM_BASE_URL).toBe("http://localhost:3000/api/");
@@ -90,7 +90,7 @@ describe("env - requiredInProduction / assertEnv / validateBaseURL", () => {
   // ---------------------------------------------------------------------------
 
   it("GLM_API_KEYが未設定の開発環境ではundefinedを返す", async () => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     delete process.env.GLM_API_KEY;
     const { serverEnv } = await import("../env");
     expect(serverEnv.GLM_API_KEY).toBeUndefined();
@@ -103,7 +103,7 @@ describe("env - requiredInProduction / assertEnv / validateBaseURL", () => {
   });
 
   it("本番環境でGLM_API_KEYが未設定だとエラーをスローする", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     delete process.env.GLM_API_KEY;
     const { serverEnv } = await import("../env");
     expect(() => serverEnv.GLM_API_KEY).toThrow(
@@ -116,7 +116,7 @@ describe("env - requiredInProduction / assertEnv / validateBaseURL", () => {
   // ---------------------------------------------------------------------------
 
   it("開発環境でSupabase環境変数が未設定でもundefinedを返す", async () => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const { clientEnv } = await import("../env");
@@ -125,7 +125,7 @@ describe("env - requiredInProduction / assertEnv / validateBaseURL", () => {
   });
 
   it("本番環境でSupabase環境変数が未設定だと警告を出す", async () => {
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const { clientEnv } = await import("../env");

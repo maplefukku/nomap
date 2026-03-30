@@ -119,7 +119,7 @@ describe("i18n - messages構造の完全性", () => {
     expect(messages.api.statusError(0)).toContain("0");
     expect(messages.validation.tooManyRejections(0)).toContain("0");
     expect(messages.validation.tooLong(0)).toContain("0");
-    expect(messages.input.itemCount(0)).toContain("0");
+    expect(messages.input.itemCount(0, 0)).toContain("0");
     expect(messages.a11y.resultsStatus(0)).toContain("0");
   });
 

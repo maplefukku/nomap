@@ -78,23 +78,18 @@ describe("Error page", () => {
   });
 
   it("NODE_ENVがdevelopmentの場合、stackが含まれる", async () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = "development";
-    try {
-      vi.resetModules();
-      const ErrorComponent = (await import("../error")).default;
-      const error = new Error("開発エラー");
-      const reset = vi.fn();
-      render(<ErrorComponent error={error} reset={reset} />);
-      expect(console.error).toHaveBeenCalledWith(
-        "[app-error]",
-        expect.objectContaining({
-          stack: error.stack,
-        }),
-      );
-    } finally {
-      process.env.NODE_ENV = originalEnv;
-    }
+    vi.stubEnv("NODE_ENV", "development");
+    vi.resetModules();
+    const ErrorComponent = (await import("../error")).default;
+    const error = new Error("開発エラー");
+    const reset = vi.fn();
+    render(<ErrorComponent error={error} reset={reset} />);
+    expect(console.error).toHaveBeenCalledWith(
+      "[app-error]",
+      expect.objectContaining({
+        stack: error.stack,
+      }),
+    );
   });
 
   it("windowがundefinedの場合、pathがundefinedになる", async () => {
