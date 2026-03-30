@@ -6,13 +6,22 @@
 // client-side JavaScript.
 // ---------------------------------------------------------------------------
 
-function envInt(key: string, fallback: number, min?: number): number {
+/**
+ * 環境変数を数値として読み取り、バリデーション・下限クランプを行う汎用ヘルパー。
+ * @param parser - 文字列→数値の変換関数（Number or parseFloat）
+ */
+function envNum(
+  key: string,
+  fallback: number,
+  min: number | undefined,
+  parser: (v: string) => number,
+): number {
   const v = process.env[key];
   if (v === undefined) return fallback;
-  const n = Number(v);
+  const n = parser(v);
   if (!Number.isFinite(n)) {
     console.warn("[constants]", {
-      warning: "invalid integer, using fallback",
+      warning: "invalid number, using fallback",
       key,
       value: v,
       fallback,
@@ -31,29 +40,12 @@ function envInt(key: string, fallback: number, min?: number): number {
   return n;
 }
 
+function envInt(key: string, fallback: number, min?: number): number {
+  return envNum(key, fallback, min, Number);
+}
+
 function envFloat(key: string, fallback: number, min?: number): number {
-  const v = process.env[key];
-  if (v === undefined) return fallback;
-  const n = parseFloat(v);
-  if (!Number.isFinite(n)) {
-    console.warn("[constants]", {
-      warning: "invalid float, using fallback",
-      key,
-      value: v,
-      fallback,
-    });
-    return fallback;
-  }
-  if (min !== undefined && n < min) {
-    console.warn("[constants]", {
-      warning: "value below minimum, clamped",
-      key,
-      value: n,
-      min,
-    });
-    return min;
-  }
-  return n;
+  return envNum(key, fallback, min, parseFloat);
 }
 
 // ---------------------------------------------------------------------------

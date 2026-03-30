@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import type { ResultData } from "@/components/result-card";
+import type { ResultData, TransformApiResponse } from "@/types/result";
 import { messages } from "@/lib/i18n";
 
 /**
@@ -14,12 +14,6 @@ import { messages } from "@/lib/i18n";
  * - `"result"` → 分析結果の表示
  */
 type Phase = "lp" | "input" | "loading" | "result";
-
-/** `/api/transform` のレスポンス形状。成功時は `results`、失敗時は `error` が設定される */
-interface TransformApiResponse {
-  results?: ResultData[];
-  error?: string;
-}
 
 /** {@link useTransformApi} が返す状態とハンドラ一式 */
 interface UseTransformApiReturn {

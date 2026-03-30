@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
             type="button"
             onClick={this.handleRetry}
             autoFocus
-            className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="focus-ring rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             {messages.errorBoundary.retry}
           </motion.button>

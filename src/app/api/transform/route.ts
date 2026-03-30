@@ -11,6 +11,14 @@ import {
 import { serverEnv } from "@/lib/env";
 import { messages } from "@/lib/i18n";
 
+/** クライアントに返しても安全なエラーメッセージのホワイトリスト */
+const SAFE_ERROR_MESSAGES: ReadonlySet<string> = new Set([
+  messages.api.timeout,
+  messages.api.emptyResponse,
+  messages.api.parseFailed,
+  messages.api.invalidFormat,
+]);
+
 /** IPごとのリクエストタイムスタンプを保持するインメモリストア */
 const requestLog = new Map<string, number[]>();
 let lastCleanup = Date.now();
@@ -66,9 +74,11 @@ function isRateLimited(ip: string): boolean {
  * @param raw - リクエストボディから取得した未検証の値
  * @returns 成功時は `{ rejections }`, 失敗時は `{ error }`
  */
-function sanitizeRejections(
-  raw: unknown,
-): { rejections: string[] } | { error: string } {
+type SanitizeResult =
+  | { readonly rejections: readonly string[]; readonly error?: never }
+  | { readonly error: string; readonly rejections?: never };
+
+function sanitizeRejections(raw: unknown): SanitizeResult {
   if (!Array.isArray(raw) || raw.length === 0) {
     return { error: messages.validation.emptyRejections };
   }
@@ -139,10 +149,10 @@ export async function POST(request: NextRequest) {
       { status: HTTP_STATUS.BAD_REQUEST },
     );
   }
-  const { rejections: rawRejections } = body as { rejections?: unknown };
+  const rawRejections = (body as Record<string, unknown>)["rejections"];
   const validated = sanitizeRejections(rawRejections);
 
-  if ("error" in validated) {
+  if (validated.error !== undefined) {
     return NextResponse.json(
       { error: validated.error },
       { status: HTTP_STATUS.BAD_REQUEST },
@@ -191,16 +201,10 @@ export async function POST(request: NextRequest) {
     });
     // セキュリティ: 内部エラー詳細の露出を防ぐため、ホワイトリストに一致する
     // メッセージのみクライアントに返し、それ以外は汎用メッセージに置換する
-    const safeMessages: string[] = [
-      messages.api.timeout,
-      messages.api.emptyResponse,
-      messages.api.parseFailed,
-      messages.api.invalidFormat,
-    ];
     const rawMessage = err instanceof Error ? err.message : "";
     const isSafe =
       rawMessage.startsWith("GLM APIエラー（ステータス:") ||
-      safeMessages.includes(rawMessage);
+      SAFE_ERROR_MESSAGES.has(rawMessage);
     const message = isSafe ? rawMessage : messages.api.transformFailed;
     return NextResponse.json(
       { error: message, category: errorCategory },

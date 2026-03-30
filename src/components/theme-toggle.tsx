@@ -30,7 +30,7 @@ export const ThemeToggle = memo(function ThemeToggle() {
       whileTap={tapAnimation}
       onClick={toggleTheme}
       type="button"
-      className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+      className="focus-ring relative flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground transition-colors hover:text-foreground"
       aria-label={isDark ? messages.theme.toLight : messages.theme.toDark}
     >
       {isDark ? (

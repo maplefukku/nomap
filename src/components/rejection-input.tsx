@@ -44,7 +44,7 @@ const TagItem = memo(function TagItem({ item, index, onRemove }: TagItemProps) {
       <button
         type="button"
         onClick={handleClick}
-        className="ml-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+        className="focus-ring ml-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
         aria-label={messages.input.removeItem(item)}
       >
         <svg
@@ -222,7 +222,7 @@ export const RejectionInput = memo(function RejectionInput({
             isLoading ? messages.input.analyzing : messages.input.submit
           }
           aria-busy={isLoading}
-          className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="focus-ring inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-2.5 text-sm font-medium text-accent-foreground shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isLoading ? (
             <>

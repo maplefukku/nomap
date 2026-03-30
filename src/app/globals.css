@@ -89,6 +89,17 @@ body {
   outline-offset: 2px;
 }
 
+/* Focus ring utility – replaces repeated Tailwind focus-visible classes */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

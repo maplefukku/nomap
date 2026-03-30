@@ -94,7 +94,7 @@ export default function Home() {
                 {...hoverTap}
                 type="button"
                 onClick={handleStartInput}
-                className="mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="focus-ring mt-8 h-12 rounded-full bg-foreground px-8 text-base font-medium text-background transition-colors hover:bg-foreground/90"
                 aria-label={messages.lp.cta}
               >
                 {messages.lp.cta}
@@ -139,7 +139,7 @@ export default function Home() {
                     {...hoverTap}
                     type="button"
                     onClick={handleShare}
-                    className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="focus-ring flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                     aria-label={messages.result.share}
                   >
                     <Share2 className="h-4 w-4" aria-hidden="true" />
@@ -149,7 +149,7 @@ export default function Home() {
                     {...hoverTap}
                     type="button"
                     onClick={handleReset}
-                    className="rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="focus-ring rounded-xl bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                     aria-label={messages.result.reset}
                   >
                     {messages.result.reset}
@@ -192,7 +192,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={handleRetry}
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      className="focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
                     >
                       <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
                       {messages.client.retry}

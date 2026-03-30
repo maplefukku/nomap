@@ -1,4 +1,4 @@
-import type { ResultData } from "@/components/result-card";
+import type { ResultData } from "@/types/result";
 import {
   GLM_API_TIMEOUT_MS,
   GLM_MAX_TOKENS,
@@ -152,7 +152,7 @@ function isTransientError(err: unknown): boolean {
 }
 
 export async function transformRejections(
-  rejections: string[],
+  rejections: readonly string[],
   apiKey: string,
 ): Promise<ResultData[]> {
   const chatMessages: ChatMessage[] = [

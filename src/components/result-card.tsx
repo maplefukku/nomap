@@ -4,26 +4,9 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import { EASE_OUT_QUART, fadeInUp } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
+import type { ResultData } from "@/types/result";
 
-/**
- * GLM APIが返す分析結果1件分のデータ構造。
- *
- * 「やりたくないこと」リストを分析した結果として、回避パターンの本質・
- * 進むべき方向性・具体的アクションを含む。LLMレスポンスのJSONから
- * {@link parseResultsFromContent} でパースされ、API→hook→UIの各層を通過する。
- */
-export interface ResultData {
-  /** 回避しているパターンの本質的な説明 */
-  avoidPattern: string;
-  /** 拒否が示す、進むべき方向性 */
-  direction: string;
-  /** 拒否から読み取れる価値観キーワード（「・」区切り）。LLMが省略した場合undefined */
-  values?: string;
-  /** 今日からできる具体的な最初の一歩 */
-  firstAction: string;
-  /** ESに使える就活の軸フレーズ。LLMが省略した場合undefined */
-  esPhrase?: string;
-}
+export type { ResultData } from "@/types/result";
 
 interface ResultCardProps {
   /** 表示する分析結果データ */

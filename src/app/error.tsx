@@ -44,7 +44,7 @@ export default function Error({
         {...errorButtonAnimation}
         type="button"
         onClick={reset}
-        className="rounded-2xl bg-foreground text-background px-6 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="focus-ring rounded-2xl bg-foreground text-background px-6 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-foreground/90"
         aria-label={messages.errorPage.retryLabel}
       >
         {messages.errorPage.retryText}
