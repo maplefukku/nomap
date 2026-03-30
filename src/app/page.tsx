@@ -200,6 +200,17 @@ export default function Home() {
                   </motion.div>
                 )}
 
+                {phase === "loading" && (
+                  <div
+                    className="flex flex-col gap-4"
+                    role="status"
+                    aria-label={messages.skeleton.loadingResults}
+                  >
+                    <CardSkeleton />
+                    <CardSkeleton />
+                  </div>
+                )}
+
                 {results.length === 0 && phase === "input" && <EmptyState />}
               </motion.div>
             )

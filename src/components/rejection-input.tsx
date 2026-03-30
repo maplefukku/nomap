@@ -20,17 +20,16 @@ interface RejectionInputProps {
 
 interface TagItemProps {
   item: string;
-  index: number;
-  onRemove: (index: number) => void;
+  onRemove: (item: string) => void;
 }
 
-const TagItem = memo(function TagItem({ item, index, onRemove }: TagItemProps) {
+const TagItem = memo(function TagItem({ item, onRemove }: TagItemProps) {
   const handleClick = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation();
-      onRemove(index);
+      onRemove(item);
     },
-    [index, onRemove],
+    [item, onRemove],
   );
 
   return (
@@ -94,8 +93,8 @@ export const RejectionInput = memo(function RejectionInput({
     setInputValue("");
   }, [inputValue]);
 
-  const removeItem = useCallback((index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+  const removeItem = useCallback((value: string) => {
+    setItems((prev) => prev.filter((item) => item !== value));
   }, []);
 
   const handleKeyDown = useCallback(
@@ -105,11 +104,14 @@ export const RejectionInput = memo(function RejectionInput({
         e.preventDefault();
         addItem();
       }
-      if (e.key === "Backspace" && inputValue === "" && items.length > 0) {
-        removeItem(items.length - 1);
+      if (e.key === "Backspace" && inputValue === "") {
+        setItems((prev) => {
+          if (prev.length === 0) return prev;
+          return prev.slice(0, -1);
+        });
       }
     },
-    [addItem, inputValue, items.length, removeItem],
+    [addItem, inputValue],
   );
 
   const handleCompositionStart = useCallback(() => {
@@ -166,13 +168,8 @@ export const RejectionInput = memo(function RejectionInput({
         aria-label={messages.input.groupLabel}
       >
         <AnimatePresence mode="popLayout">
-          {items.map((item, index) => (
-            <TagItem
-              key={item}
-              item={item}
-              index={index}
-              onRemove={removeItem}
-            />
+          {items.map((item) => (
+            <TagItem key={item} item={item} onRemove={removeItem} />
           ))}
         </AnimatePresence>
         <input

@@ -1,8 +1,21 @@
 // ---------------------------------------------------------------------------
 // ロケール設定
 // ---------------------------------------------------------------------------
-export const LOCALE = "ja-JP" as const;
-export const LOCALE_SHORT = "ja" as const;
+
+/** サポート対象のロケール識別子 */
+export type SupportedLocale = "ja-JP" | "en-US";
+
+/** ロケール短縮名（html lang属性等で使用） */
+export type LocaleShort = "ja" | "en";
+
+/** ロケールと短縮名のマッピング */
+export const LOCALE_MAP: Record<SupportedLocale, LocaleShort> = {
+  "ja-JP": "ja",
+  "en-US": "en",
+} as const;
+
+export const LOCALE: SupportedLocale = "ja-JP";
+export const LOCALE_SHORT: LocaleShort = LOCALE_MAP[LOCALE];
 
 // ---------------------------------------------------------------------------
 // 日本語ロケール定数
@@ -185,3 +198,6 @@ export const messages = {
     tagline: "NoMap — 「やりたくないこと」からあなたの地図をつくる",
   },
 } as const;
+
+/** メッセージオブジェクトの型（i18n拡張時のロケール別実装に使用） */
+export type Messages = typeof messages;
