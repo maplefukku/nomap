@@ -55,4 +55,16 @@ describe("constants.server - envInt / envFloat", () => {
     const { GLM_TEMPERATURE } = await import("../constants.server");
     expect(GLM_TEMPERATURE).toBe(0.7);
   });
+
+  it("envInt: 最小値未満の場合は最小値にクランプされる", async () => {
+    process.env.GLM_API_TIMEOUT_MS = "100";
+    const { GLM_API_TIMEOUT_MS } = await import("../constants.server");
+    expect(GLM_API_TIMEOUT_MS).toBe(1000);
+  });
+
+  it("envFloat: 最小値未満の場合は最小値にクランプされる", async () => {
+    process.env.GLM_TEMPERATURE = "-1";
+    const { GLM_TEMPERATURE } = await import("../constants.server");
+    expect(GLM_TEMPERATURE).toBe(0);
+  });
 });
