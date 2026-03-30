@@ -227,6 +227,29 @@ describe("RejectionInput", () => {
     expect(screen.getByText("残業する")).toBeInTheDocument();
   });
 
+  it("MAX_REJECTIONSに達している場合、新しいアイテムが追加されずヒントが表示される", () => {
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+
+    // 20個のアイテムを追加
+    for (let i = 1; i <= 20; i++) {
+      fireEvent.change(input, { target: { value: `項目${i}` } });
+      fireEvent.keyDown(input, { key: "Enter" });
+    }
+
+    expect(screen.getByText("20 / 20")).toBeInTheDocument();
+
+    // 21個目を追加しようとする
+    fireEvent.change(input, { target: { value: "追加できない項目" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    // アイテムが追加されない
+    expect(screen.queryByText("追加できない項目")).not.toBeInTheDocument();
+    // maxReachedヒントが表示される
+    expect(screen.getByText("これ以上追加できません")).toBeInTheDocument();
+  });
+
   it("changes placeholder after adding items", async () => {
     const user = userEvent.setup();
     render(<RejectionInput onSubmit={vi.fn()} />);
