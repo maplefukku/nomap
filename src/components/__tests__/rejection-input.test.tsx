@@ -202,6 +202,31 @@ describe("RejectionInput", () => {
     expect(screen.getByText("日本語入力")).toBeInTheDocument();
   });
 
+  it("入力が空でアイテムがない状態でBackspaceを押しても何も起きない", () => {
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+    fireEvent.keyDown(input, { key: "Backspace" });
+
+    expect(
+      screen.getByText("Enterで追加、Backspaceで削除"),
+    ).toBeInTheDocument();
+  });
+
+  it("入力に文字がある状態でBackspaceを押してもアイテムは削除されない", async () => {
+    const user = userEvent.setup();
+    render(<RejectionInput onSubmit={vi.fn()} />);
+
+    const input = screen.getByLabelText("拒否項目を入力");
+    await user.type(input, "残業する{Enter}");
+    expect(screen.getByText("残業する")).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: "テスト" } });
+    fireEvent.keyDown(input, { key: "Backspace" });
+
+    expect(screen.getByText("残業する")).toBeInTheDocument();
+  });
+
   it("changes placeholder after adding items", async () => {
     const user = userEvent.setup();
     render(<RejectionInput onSubmit={vi.fn()} />);
