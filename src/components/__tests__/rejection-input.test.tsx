@@ -140,7 +140,7 @@ describe("RejectionInput", () => {
     await user.type(input, "残業する{Enter}");
     await user.type(input, "通勤する{Enter}");
 
-    expect(screen.getByText("2件の拒否")).toBeInTheDocument();
+    expect(screen.getByText("2 / 20")).toBeInTheDocument();
   });
 
   it("calls onSubmit with items when button is clicked", async () => {

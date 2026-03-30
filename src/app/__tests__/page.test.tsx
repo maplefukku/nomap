@@ -263,7 +263,7 @@ describe("Home (page.tsx)", () => {
       `私のNoMap: 自由な働き方 - リモート求人を探す #NoMap`,
     );
     expect(mockOpen).toHaveBeenCalledWith(
-      `https://twitter.com/intent/tweet?text=${expectedText}`,
+      `https://x.com/intent/tweet?text=${expectedText}`,
       "_blank",
       "noopener,noreferrer",
     );

@@ -8,6 +8,9 @@
 /** Validation limit used by client-side input component */
 export const MAX_REJECTION_LENGTH = 200;
 
+/** Maximum number of rejection items (must match server-side MAX_REJECTIONS) */
+export const MAX_REJECTIONS = 20;
+
 // ---------------------------------------------------------------------------
 // Shared animation primitives (framer-motion)
 // ---------------------------------------------------------------------------

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { tagAnimation, hoverTap } from "@/lib/constants";
-import { MAX_REJECTION_LENGTH } from "@/lib/constants";
+import { MAX_REJECTION_LENGTH, MAX_REJECTIONS } from "@/lib/constants";
 import { messages } from "@/lib/i18n";
 
 interface RejectionInputProps {
@@ -83,6 +83,10 @@ export const RejectionInput = memo(function RejectionInput({
       return;
     }
     setItems((prev) => {
+      if (prev.length >= MAX_REJECTIONS) {
+        setHint(messages.input.maxReached);
+        return prev;
+      }
       if (prev.includes(trimmed)) {
         setHint(messages.input.duplicate);
         return prev;
@@ -134,16 +138,6 @@ export const RejectionInput = memo(function RejectionInput({
     inputRef.current?.focus();
   }, []);
 
-  const handleContainerKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLDivElement>) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    },
-    [],
-  );
-
   const handleSubmit = useCallback(() => {
     onSubmit(items);
   }, [items, onSubmit]);
@@ -162,9 +156,7 @@ export const RejectionInput = memo(function RejectionInput({
       <div
         className="flex min-h-[120px] flex-wrap items-start gap-2 rounded-2xl border border-border bg-card p-4 shadow-sm transition-all focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/20"
         onClick={handleContainerClick}
-        onKeyDown={handleContainerKeyDown}
         role="group"
-        tabIndex={0}
         aria-label={messages.input.groupLabel}
       >
         <AnimatePresence mode="popLayout">
@@ -187,7 +179,7 @@ export const RejectionInput = memo(function RejectionInput({
           }
           maxLength={MAX_REJECTION_LENGTH}
           className="min-w-[80px] flex-1 bg-transparent py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:outline-none sm:min-w-[180px]"
-          disabled={isLoading}
+          disabled={isLoading || items.length >= MAX_REJECTIONS}
           aria-label={messages.input.inputLabel}
           aria-invalid={hint ? "true" : undefined}
           aria-describedby={hint ? "input-hint" : undefined}
@@ -207,7 +199,7 @@ export const RejectionInput = memo(function RejectionInput({
           aria-atomic="true"
         >
           {items.length > 0
-            ? messages.input.itemCount(items.length)
+            ? messages.input.itemCount(items.length, MAX_REJECTIONS)
             : messages.input.hint}
         </span>
         <motion.button

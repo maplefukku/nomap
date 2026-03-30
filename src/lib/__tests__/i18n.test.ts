@@ -77,9 +77,9 @@ describe("i18n - messages構造の完全性", () => {
     expect(messages.input.charLimit(200)).toBe("200文字以内で入力してください");
   });
 
-  it("input.itemCount: 件数を含むメッセージを返す", () => {
-    expect(messages.input.itemCount(0)).toBe("0件の拒否");
-    expect(messages.input.itemCount(5)).toBe("5件の拒否");
+  it("input.itemCount: 件数と上限を含むメッセージを返す", () => {
+    expect(messages.input.itemCount(0, 20)).toBe("0 / 20");
+    expect(messages.input.itemCount(5, 20)).toBe("5 / 20");
   });
 
   it("share.tweet: 方向とアクションを含むメッセージを返す", () => {

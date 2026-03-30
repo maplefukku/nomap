@@ -136,7 +136,7 @@ export function useTransformApi(): UseTransformApiReturn {
       messages.share.tweet(first.direction, first.firstAction),
     );
     const win = window.open(
-      `https://twitter.com/intent/tweet?text=${text}`,
+      `https://x.com/intent/tweet?text=${text}`,
       "_blank",
       "noopener,noreferrer",
     );

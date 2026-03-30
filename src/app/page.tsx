@@ -192,6 +192,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={handleRetry}
+                      aria-label={messages.client.retry}
                       className="focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
                     >
                       <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
