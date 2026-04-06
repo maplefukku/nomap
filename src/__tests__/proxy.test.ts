@@ -5,7 +5,7 @@ vi.mock("@/lib/supabase/middleware", () => ({
   updateSession: vi.fn().mockResolvedValue(new Response()),
 }));
 
-describe("middleware", () => {
+describe("proxy", () => {
   let updateSession: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
@@ -15,38 +15,38 @@ describe("middleware", () => {
     updateSession.mockClear();
   });
 
-  async function callMiddleware(pathname: string) {
-    const { middleware } = await import("../middleware");
+  async function callProxy(pathname: string) {
+    const { proxy } = await import("../proxy");
     const request = new NextRequest(new URL(pathname, "http://localhost:3000"));
-    return middleware(request);
+    return proxy(request);
   }
 
   it("APIルートではupdateSessionをスキップする", async () => {
-    const result = await callMiddleware("/api/transform");
+    const result = await callProxy("/api/transform");
     expect(result).toBeUndefined();
     expect(updateSession).not.toHaveBeenCalled();
   });
 
   it("/api/で始まる全てのパスをスキップする", async () => {
-    await callMiddleware("/api/health");
+    await callProxy("/api/health");
     expect(updateSession).not.toHaveBeenCalled();
 
-    await callMiddleware("/api/foo/bar");
+    await callProxy("/api/foo/bar");
     expect(updateSession).not.toHaveBeenCalled();
   });
 
   it("通常のページリクエストではupdateSessionを呼ぶ", async () => {
-    await callMiddleware("/");
+    await callProxy("/");
     expect(updateSession).toHaveBeenCalledTimes(1);
   });
 
   it("非APIのパスではupdateSessionを呼ぶ", async () => {
-    await callMiddleware("/dashboard");
+    await callProxy("/dashboard");
     expect(updateSession).toHaveBeenCalledTimes(1);
   });
 
   it("matcherの設定がエクスポートされている", async () => {
-    const { config } = await import("../middleware");
+    const { config } = await import("../proxy");
     expect(config.matcher).toBeDefined();
     expect(config.matcher).toHaveLength(1);
   });
