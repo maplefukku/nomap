@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
       SAFE_ERROR_MESSAGES.has(rawMessage);
     const message = isSafe ? rawMessage : messages.api.transformFailed;
     return NextResponse.json(
-      { error: message, category: errorCategory },
+      { error: message },
       {
         status: HTTP_STATUS.BAD_GATEWAY,
         headers: {
